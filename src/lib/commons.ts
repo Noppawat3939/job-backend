@@ -13,3 +13,18 @@ export const less = (value: number, target: number) => value < target;
 export const more = (value: number, target: number) => value > target;
 
 export const orHas = <T>(values: T[]) => [...values].some(Boolean);
+
+export const exclude = <T extends any[]>(data: T, excludeKey: (keyof T[number])[]) => {
+  const excluded = data.map((item) => {
+    const filtered = {};
+
+    for (const key in item) {
+      if (!excludeKey.includes(key)) {
+        filtered[key] = item[key];
+      }
+    }
+    return filtered;
+  });
+
+  return excluded;
+};

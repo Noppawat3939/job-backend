@@ -1,3 +1,4 @@
+import type { JwtPayload } from 'src/types';
 import { Role } from '@prisma/client';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
@@ -20,7 +21,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
   }
 
-  async validate(payload: { id: number; email: string; role: Role; iat: number; exp: number }) {
+  async validate(payload: JwtPayload) {
     const isEmployer = eq(payload.role, Role.employer);
 
     const user = await this.db.user.findFirst({
@@ -31,6 +32,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         firstName: true,
         lastName: true,
         role: true,
+        createdAt: true,
         companyName: isEmployer,
         industry: isEmployer,
       },

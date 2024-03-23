@@ -10,4 +10,5 @@ export const MESSAGE = {
   USER_FORGET_PASSWORD: 'User updated new password successfully',
   TIME_NOT_ARRIVE: 'Unable to update because the specified time has not yet arrived',
   PUBLIC_KEY_NOT_FOUND: "Can't access to resources",
+  NOT_PERMISSION: "Can't access to resources, your accout not permission",
 } as const;
