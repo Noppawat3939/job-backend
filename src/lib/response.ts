@@ -2,7 +2,6 @@ import {
   BadRequestException,
   ForbiddenException,
   InternalServerErrorException,
-  MethodNotAllowedException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -20,9 +19,6 @@ export const exceptions = {
   },
   notFound: (message = 'Error response not found', error = STATUS_TYPE[404]) => {
     throw new NotFoundException(message, error);
-  },
-  notAllowed: (message = 'Error response not found', error = STATUS_TYPE[405]) => {
-    throw new MethodNotAllowedException(message, error);
   },
   internalServerError: (message = 'Error internal server', error = STATUS_TYPE[500]) => {
     throw new InternalServerErrorException(message, error);

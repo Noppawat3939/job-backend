@@ -11,4 +11,5 @@ export const MESSAGE = {
   TIME_NOT_ARRIVE: 'Unable to update because the specified time has not yet arrived',
   PUBLIC_KEY_NOT_FOUND: "Can't access to resources",
   NOT_PERMISSION: "Can't access to resources, your accout not permission",
+  GETTED_USERS: 'Getted users successfully',
 } as const;

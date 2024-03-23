@@ -7,10 +7,11 @@ import { eq, exceptions, orHas } from 'src/lib';
 export class PublicKeyGuard implements CanActivate {
   constructor(private config: ConfigService) {}
 
-  canActivate(context: ExecutionContext): boolean {
-    const request = context.switchToHttp().getRequest();
+  canActivate(ctx: ExecutionContext): boolean {
+    const request = ctx.switchToHttp().getRequest();
     const apiKey = request.headers['api-key'];
     const userAgent = request.headers['user-agent'];
+
     const allowedUserAgent = [
       this.config.get('USER_AGENT_POSTMAN'),
       this.config.get('USER_AGENT_THUNDER_CLIENT'),
@@ -20,6 +21,6 @@ export class PublicKeyGuard implements CanActivate {
 
     if (isAllowed) return true;
 
-    return exceptions.notAllowed(MESSAGE.PUBLIC_KEY_NOT_FOUND);
+    return exceptions.fobbiden(MESSAGE.PUBLIC_KEY_NOT_FOUND);
   }
 }
