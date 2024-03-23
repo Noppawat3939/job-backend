@@ -11,3 +11,5 @@ export const eq = <T>(value: T, target: T) => value === target;
 export const less = (value: number, target: number) => value < target;
 
 export const more = (value: number, target: number) => value > target;
+
+export const orHas = <T>(values: T[]) => [...values].some(Boolean);

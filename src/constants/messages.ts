@@ -9,4 +9,5 @@ export const MESSAGE = {
   PASSWORD_INVALID: 'Password is invalid',
   USER_FORGET_PASSWORD: 'User updated new password successfully',
   TIME_NOT_ARRIVE: 'Unable to update because the specified time has not yet arrived',
+  PUBLIC_KEY_NOT_FOUND: "Can't access to resources",
 } as const;

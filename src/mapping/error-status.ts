@@ -4,5 +4,6 @@ export const ERROR_STATUS_TYPE = {
   401: 'UN_AUTHORIZED',
   403: 'FORBIDDEN',
   404: 'NOT_FOUND',
+  405: 'NOT_ALLOWED',
   500: 'INTERNAL_SERVER_ERROR',
 } as const;

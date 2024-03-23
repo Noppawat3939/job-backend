@@ -1,9 +1,19 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
+import { PublicKeyGuard } from 'src/guards';
+import { PublicService } from './public.service';
 
 @Controller('public')
 export class PublicController {
-  @Get('industry-list')
+  constructor(private readonly service: PublicService) {}
+
+  @UseGuards(PublicKeyGuard)
+  @Get('industry')
   getIndustryList() {
-    return { message: 'ok' };
+    return this.service.getIndustries();
+  }
+
+  @Get('/province')
+  getProvince() {
+    return this.service.getProvince();
   }
 }
