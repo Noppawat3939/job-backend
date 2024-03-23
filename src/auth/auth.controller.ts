@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, UsePipes } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Patch, Post, UsePipes } from '@nestjs/common';
 import { ZodValidationPipe } from 'nestjs-zod';
 import {
   ForgotPasswordCompanyDto,
@@ -54,14 +54,14 @@ export class AuthController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @Post('forgotpassword')
+  @Patch('forgotpassword')
   @UsePipes(new ZodValidationPipe(forgotPasswordUserWithAdminSchema))
   forgotPasswordUserWithAdmin(@Body() body: ForgotPasswordUserWithAdminDto) {
     return this.service.forgotPassword(body);
   }
 
   @HttpCode(HttpStatus.OK)
-  @Post('forgotpassword/company')
+  @Patch('forgotpassword/company')
   @UsePipes(new ZodValidationPipe(forgotPasswordCompanySchema))
   forgotPasswordCompany(@Body() body: ForgotPasswordCompanyDto) {
     return this.service.forgotPassword(body);
