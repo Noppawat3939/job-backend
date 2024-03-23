@@ -82,11 +82,8 @@ export class AuthService {
       const userOrAdmin = await this.db.user
         .findFirstOrThrow({
           where: {
-            OR: [
-              { email: dto.email, role: Role.user },
-              { email: dto.email, role: Role.admin },
-              { email: dto.email, role: Role.super_admin },
-            ],
+            email: dto.email,
+            NOT: { role: Role.employer },
           },
         })
         .catch(() => exceptions.badRequest(MESSAGE.EMAIL_PASSWORD_INVALID));
@@ -112,15 +109,15 @@ export class AuthService {
 
     if (dto.companyName) {
       const company = await this.db.user
-        .findFirstOrThrow({ where: { companyName: dto.companyName, email: dto.email } })
+        .findFirstOrThrow({
+          where: { role: Role.employer, companyName: dto.companyName, email: dto.email },
+        })
         .catch(() => exceptions.badRequest(MESSAGE.USER_NOT_FOUND));
 
       user = company;
     } else {
       const userWithAdmin = await this.db.user
-        .findFirstOrThrow({
-          where: { email: dto.email, active: true },
-        })
+        .findFirstOrThrow({ where: { email: dto.email, NOT: { role: Role.employer } } })
         .catch(() => exceptions.badRequest(MESSAGE.USER_NOT_FOUND));
 
       user = userWithAdmin;
