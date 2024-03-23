@@ -1,0 +1,8 @@
+export const ERROR_STATUS_TYPE = {
+  200: 'SUCCESS',
+  400: 'BAD_REQUEST',
+  401: 'UN_AUTHORIZED',
+  403: 'FORBIDDEN',
+  404: 'NOT_FOUND',
+  500: 'INTERNAL_SERVER_ERROR',
+} as const;
