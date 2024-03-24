@@ -22,6 +22,34 @@ model User {
   updatedAt DateTime @updatedAt
 }
 
+model Job {
+  id              Int        @id @default(autoincrement())
+  active          Boolean?
+  position        String
+  style           WorkStyle?
+  company         String
+  industry        String?
+  companyProfile  String?
+  location        String?
+  salary          String?
+  urgent          Boolean?   @default(false)
+  jobDescriptions String[]
+  qualifications  String[]
+  benefits        String[]
+  contracts       String[]
+  transports      String[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum WorkStyle {
+  remote
+  work_from_home
+  on_site
+  hybrid
+}
+
 enum Role {
   super_admin
   admin
