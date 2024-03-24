@@ -28,12 +28,14 @@ export const companyNameSchema = {
     .string({ required_error: 'Company name is required' })
     .min(NAME_MIN_LEN, { message: `Company name should more than ${NAME_MIN_LEN} charactors` }),
   common: z.string({ required_error: 'Company name is required' }),
+  update: z.string().optional(),
 };
 
 export const industrySchema = {
   create: z
     .string({ required_error: 'Industry is required' })
     .min(NAME_MIN_LEN, { message: `Industry should more than ${NAME_MIN_LEN} charactors` }),
+  update: z.string().optional(),
 };
 
 export const firstNameSchema = {

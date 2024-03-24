@@ -1,8 +1,29 @@
-import { Controller, Get, Req, SetMetadata, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Req,
+  SetMetadata,
+  UseGuards,
+  UsePipes,
+} from '@nestjs/common';
 import { Request } from 'express';
 import { JwtAuthGuard, RolesGuard } from 'src/guards';
 import { UserService } from './user.service';
 import { Role } from '@prisma/client';
+import { ZodValidationPipe } from 'nestjs-zod';
+import {
+  UpdateCompanyInfoDto,
+  UpdateEmailDto,
+  UpdateUserInfoDto,
+  updateCompanyInfoSchema,
+  updateEmailSchema,
+  updateUserInfoSchema,
+} from 'src/schemas';
 
 @UseGuards(JwtAuthGuard)
 @Controller('user')
@@ -12,6 +33,28 @@ export class UserController {
   @Get('me')
   getMe(@Req() req: Request) {
     return this.service.getMe(req.user);
+  }
+
+  @Post('update')
+  @UsePipes(new ZodValidationPipe(updateUserInfoSchema))
+  updateUserInfo(@Req() req: Request, @Body() body: UpdateUserInfoDto) {
+    return this.service.updateUserInfo(req.user, body);
+  }
+
+  @UseGuards(RolesGuard)
+  @SetMetadata('role', [Role.employer])
+  @Post('update-company')
+  @UsePipes(new ZodValidationPipe(updateCompanyInfoSchema))
+  updateCompanyInfo(@Req() req: Request, @Body() body: UpdateCompanyInfoDto) {
+    return this.service.updateUserInfo(req.user, body);
+  }
+
+  @Post('update-email')
+  @UsePipes(new ZodValidationPipe(updateEmailSchema))
+  updateEmailUser(@Req() req: Request, @Body() body: UpdateEmailDto) {
+    const userId = +req.user.id;
+
+    return this.service.updateEmail(userId, body);
   }
 
   @UseGuards(RolesGuard)
@@ -33,5 +76,26 @@ export class UserController {
   @Get('un-approve')
   getRejectedUsers() {
     return this.service.getUsers('rejected');
+  }
+
+  @UseGuards(RolesGuard)
+  @SetMetadata('role', [Role.super_admin])
+  @Patch('approve/:id')
+  approveUser(@Param() { id }: { id: string }) {
+    return this.service.approveOrRejectUser(+id, 'approved');
+  }
+
+  @UseGuards(RolesGuard)
+  @SetMetadata('role', [Role.super_admin])
+  @Patch('reject/:id')
+  rejectUser(@Param() { id }: { id: string }) {
+    return this.service.approveOrRejectUser(+id, 'rejected');
+  }
+
+  @UseGuards(RolesGuard)
+  @SetMetadata('role', [Role.super_admin])
+  @Delete('delete/:id')
+  deleteUser(@Param() { id }: { id: string }) {
+    return this.service.deleteUser(+id);
   }
 }

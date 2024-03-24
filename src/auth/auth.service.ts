@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Role, User } from '@prisma/client';
-import dayjs from 'dayjs';
 import { MESSAGE } from 'src/constants';
 import { DbService } from 'src/db';
-import { accepts, compareHash, exceptions, hash } from 'src/lib';
+import { accepts, checkLastUpdated, compareHash, exceptions, hash } from 'src/lib';
 import {
   ForgotPasswordCompanyDto,
   ForgotPasswordUserWithAdminDto,
@@ -13,8 +12,6 @@ import {
   SignupCompanyDto,
   SignupUserWithAdminDto,
 } from 'src/schemas';
-
-const backCurrentTime = dayjs().add(-10, 'minutes');
 
 @Injectable()
 export class AuthService {
@@ -75,7 +72,7 @@ export class AuthService {
         .findFirstOrThrow({
           where: { email: dto.email, companyName: dto.companyName, role: Role.employer },
         })
-        .catch(() => exceptions.badRequest(MESSAGE.EMAIL_PASSWORD_INVALID));
+        .catch(() => exceptions.badRequest(MESSAGE.USER_NOT_FOUND));
 
       user = company;
     } else {
@@ -86,7 +83,7 @@ export class AuthService {
             NOT: { role: Role.employer },
           },
         })
-        .catch(() => exceptions.badRequest(MESSAGE.EMAIL_PASSWORD_INVALID));
+        .catch(() => exceptions.badRequest(MESSAGE.USER_NOT_FOUND));
 
       user = userOrAdmin;
     }
@@ -125,9 +122,7 @@ export class AuthService {
 
     if (!user.active) return exceptions.fobbiden(MESSAGE.USER_NOT_ACTIVE);
 
-    const hasLastUpdated = backCurrentTime.isBefore(user.updatedAt);
-
-    if (hasLastUpdated) return exceptions.badRequest(MESSAGE.TIME_NOT_ARRIVE);
+    checkLastUpdated(-10, user.updatedAt);
 
     const password = await hash(dto.newPassword);
 

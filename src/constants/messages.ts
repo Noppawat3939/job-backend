@@ -5,6 +5,9 @@ export const MESSAGE = {
   COMPANY_EXITS: 'Company name or Email is already exits',
   USER_CREATED: 'User created successfully',
   USER_LOGINED: 'User signined successfully',
+  EMAIL_UPDATED: 'Email updated successfully',
+  USER_INFO_UPDATED: 'User data updated successfully',
+  COMPANY_INFO_UPDATED: 'Company data updated successfully',
   USER_NOT_ACTIVE: "User don't approve",
   PASSWORD_INVALID: 'Password is invalid',
   USER_FORGET_PASSWORD: 'User updated new password successfully',
@@ -12,4 +15,7 @@ export const MESSAGE = {
   PUBLIC_KEY_NOT_FOUND: "Can't access to resources",
   NOT_PERMISSION: "Can't access to resources, your accout not permission",
   GETTED_USERS: 'Getted users successfully',
+  USER_APPROVED: 'User approved successfully',
+  USER_REJECTED: 'User rejected successfully',
+  USER_DELETED: 'User deleted successfully',
 } as const;

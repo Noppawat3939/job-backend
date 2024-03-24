@@ -5,6 +5,8 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import dayjs from 'dayjs';
+import { MESSAGE } from 'src/constants';
 import { ERROR_STATUS_TYPE as STATUS_TYPE } from 'src/mapping';
 
 export const exceptions = {
@@ -27,4 +29,14 @@ export const exceptions = {
 
 export const accepts = <M extends string, D>(message: M, data?: D) => {
   return { success: true, message, ...(data && data) };
+};
+
+export const checkLastUpdated = (addTimeMinutes: number, updatedAt: Date | string) => {
+  const addedTime = dayjs().add(addTimeMinutes, 'minutes');
+
+  const canUpdate = addedTime.isAfter(updatedAt);
+
+  if (canUpdate) return true;
+
+  return exceptions.badRequest(MESSAGE.TIME_NOT_ARRIVE);
 };
