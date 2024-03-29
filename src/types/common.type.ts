@@ -1,4 +1,5 @@
 import { Role } from '@prisma/client';
+import { WorkStyle as PCWorkStyle } from '@prisma/client';
 
 export type Provinces = {
   id: number;
@@ -13,3 +14,5 @@ export type Provinces = {
 export type JwtPayload = { id: number; email: string; role: Role; iat: number; exp: number };
 
 export type QueryApproveUsers = 'approved' | 'un_approve' | 'rejected';
+
+export type WorkingStyle = typeof PCWorkStyle;
