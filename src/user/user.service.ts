@@ -1,7 +1,7 @@
 import type { QueryApproveUsers } from 'src/types';
 import { Injectable } from '@nestjs/common';
 import { Role, User } from '@prisma/client';
-import { MESSAGE } from 'src/constants';
+import { ACTIVE, MESSAGE } from 'src/constants';
 import { DbService } from 'src/db';
 import { accepts, checkLastUpdated, compareHash, eq, exceptions, exclude } from 'src/lib';
 import { UpdateCompanyInfoDto, UpdateEmailDto, UpdateUserInfoDto } from 'src/schemas';
@@ -12,9 +12,9 @@ export class UserService {
 
   async getUsers(query?: QueryApproveUsers) {
     const filter = {
-      ...(eq(query, 'approved') && { AND: { active: true } }),
-      ...(eq(query, 'un_approve') && { AND: { active: null } }),
-      ...(eq(query, 'rejected') && { NOT: { active: false } }),
+      ...(eq(query, ACTIVE.APPROVED) && { AND: { active: true } }),
+      ...(eq(query, ACTIVE.UN_APPROVE) && { AND: { active: null } }),
+      ...(eq(query, ACTIVE.REJECTED) && { NOT: { active: false } }),
     };
 
     const users = await this.db.user.findMany({
@@ -34,16 +34,28 @@ export class UserService {
     return accepts(MESSAGE.GETTED_USERS, { data: user });
   }
 
-  async approveOrRejectUser(id: number, action: 'approved' | 'rejected') {
-    await this.db.user
+  async approveOrRejectUser(id: number, action: QueryApproveUsers) {
+    const user = await this.db.user
       .findFirstOrThrow({ where: { id } })
       .catch(() => exceptions.badRequest(MESSAGE.USER_NOT_FOUND));
 
-    const isApproved = action === 'approved';
+    const isApproved = eq(action, ACTIVE.APPROVED);
+    const isResetActive = eq(action, ACTIVE.UN_APPROVE);
 
-    await this.db.user.update({ where: { id }, data: { active: isApproved } });
+    if (isResetActive && eq(user.active, null)) return accepts('User status is un approve');
 
-    return accepts(isApproved ? MESSAGE.USER_APPROVED : MESSAGE.USER_REJECTED);
+    await this.db.user.update({
+      where: { id },
+      data: { active: isResetActive ? null : isApproved },
+    });
+
+    return accepts(
+      isResetActive
+        ? MESSAGE.RESETED_ACTIVE
+        : isApproved
+          ? MESSAGE.USER_APPROVED
+          : MESSAGE.USER_REJECTED,
+    );
   }
 
   async deleteUser(id: number) {
@@ -95,6 +107,7 @@ export class UserService {
       const updatedCompany = {
         companyName: dto.companyName || user.companyName,
         industry: dto.industry || user.industry,
+        companyProfile: dto.companyProfile || user.companyProfile,
       };
 
       data = updatedCompany;

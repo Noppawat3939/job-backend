@@ -3,6 +3,7 @@ import { z } from 'nestjs-zod/z';
 
 const PASSWORD_MIN_LEN = 8;
 const NAME_MIN_LEN = 2;
+const SALARY_RANGE_BAHT = { START_MIN: 0, START_MAX: 1 };
 
 export const emailSchema = {
   create: z
@@ -61,19 +62,22 @@ export const positionJobSchema = {
 };
 
 export const workStyleSchema = {
-  common: z.string().optional(),
   create: z.enum(
     [WorkStyle.hybrid, WorkStyle.on_site, WorkStyle.remote, WorkStyle.work_from_home],
     {
-      required_error: 'Work style is required',
       errorMap: () => ({ message: 'Woking style is invalid' }),
     },
   ),
+  update: z
+    .enum([WorkStyle.hybrid, WorkStyle.on_site, WorkStyle.remote, WorkStyle.work_from_home], {
+      errorMap: () => ({ message: 'Woking style is invalid' }),
+    })
+    .optional(),
 };
 
 export const comppanyPropfileSchema = {
   common: z.string().optional(),
-  create: z
+  update: z
     .string({ required_error: 'Company profile is required' })
     .min(NAME_MIN_LEN, { message: `Company profile must be ${NAME_MIN_LEN} charactors` }),
 };
@@ -86,8 +90,26 @@ export const comppanyLocationSchema = {
 };
 
 export const salaryJobSchema = {
-  common: z.string().optional(),
-  create: z.string({ required_error: 'Salary job is required' }),
+  create: z
+    .tuple([
+      z
+        .number()
+        .min(SALARY_RANGE_BAHT.START_MIN, {
+          message: `Salary should be mininum min range ${SALARY_RANGE_BAHT.START_MIN} baht`,
+        })
+        .optional(),
+      z
+        .number()
+        .min(SALARY_RANGE_BAHT.START_MAX, {
+          message: `Salary should be minimum max range ${SALARY_RANGE_BAHT.START_MAX} baht`,
+        })
+        .optional(),
+    ])
+    .refine((values) => values[1] > values[0], {
+      message: 'Salary max value range should more than or requal min value range',
+    })
+    .or(z.tuple([z.number().default(SALARY_RANGE_BAHT.START_MIN)]))
+    .or(z.number().default(SALARY_RANGE_BAHT.START_MIN)),
 };
 
 export const descriptionJobSchema = {

@@ -28,3 +28,8 @@ export const exclude = <T extends any[]>(data: T, excludeKey: (keyof T[number])[
 
   return excluded;
 };
+
+export const transform = {
+  toNumberArray: (values: any) =>
+    Array.isArray(values) ? values.map((value) => Number(value)) : [Number(values)],
+};

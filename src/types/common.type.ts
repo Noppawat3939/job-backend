@@ -1,5 +1,8 @@
+import { ACTIVE } from 'src/constants';
 import { Role } from '@prisma/client';
 import { WorkStyle as PCWorkStyle } from '@prisma/client';
+
+const valueActive = Object.values(ACTIVE);
 
 export type Provinces = {
   id: number;
@@ -13,6 +16,6 @@ export type Provinces = {
 
 export type JwtPayload = { id: number; email: string; role: Role; iat: number; exp: number };
 
-export type QueryApproveUsers = 'approved' | 'un_approve' | 'rejected';
+export type QueryApproveUsers = (typeof valueActive)[number];
 
 export type WorkingStyle = typeof PCWorkStyle;

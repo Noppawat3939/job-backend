@@ -1,6 +1,7 @@
 import { z } from 'nestjs-zod/z';
 import {
   companyNameSchema,
+  comppanyPropfileSchema,
   emailSchema,
   firstNameSchema,
   industrySchema,
@@ -17,6 +18,7 @@ export const updateEmailSchema = z.object({
 export const updateCompanyInfoSchema = z.object({
   companyName: companyNameSchema.update,
   industry: industrySchema.update,
+  companyProfile: comppanyPropfileSchema.update,
 });
 
 export const updateUserInfoSchema = z.object({

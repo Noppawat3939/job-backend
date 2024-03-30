@@ -24,6 +24,7 @@ import {
   updateEmailSchema,
   updateUserInfoSchema,
 } from 'src/schemas';
+import { ACTIVE } from 'src/constants';
 
 @UseGuards(JwtAuthGuard)
 @Controller('user')
@@ -68,28 +69,35 @@ export class UserController {
   @SetMetadata('role', [Role.super_admin])
   @Get('un-approve')
   getUnApproveUsers() {
-    return this.service.getUsers('un_approve');
+    return this.service.getUsers(ACTIVE.UN_APPROVE);
   }
 
   @UseGuards(RolesGuard)
   @SetMetadata('role', [Role.super_admin])
   @Get('un-approve')
   getRejectedUsers() {
-    return this.service.getUsers('rejected');
+    return this.service.getUsers(ACTIVE.REJECTED);
   }
 
   @UseGuards(RolesGuard)
   @SetMetadata('role', [Role.super_admin])
   @Patch('approve/:id')
   approveUser(@Param() { id }: { id: string }) {
-    return this.service.approveOrRejectUser(+id, 'approved');
+    return this.service.approveOrRejectUser(+id, ACTIVE.APPROVED);
   }
 
   @UseGuards(RolesGuard)
   @SetMetadata('role', [Role.super_admin])
   @Patch('reject/:id')
   rejectUser(@Param() { id }: { id: string }) {
-    return this.service.approveOrRejectUser(+id, 'rejected');
+    return this.service.approveOrRejectUser(+id, ACTIVE.REJECTED);
+  }
+
+  @UseGuards(RolesGuard)
+  @SetMetadata('role', [Role.super_admin])
+  @Patch('reject/:id')
+  unApproveUser(@Param() { id }: { id: string }) {
+    return this.service.approveOrRejectUser(+id, ACTIVE.UN_APPROVE);
   }
 
   @UseGuards(RolesGuard)

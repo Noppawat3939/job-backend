@@ -8,15 +8,16 @@ datasource db {
 }
 
 model User {
-  id          Int      @id @default(autoincrement())
-  email       String
-  password    String
-  role        Role
-  active      Boolean?
-  firstName   String?
-  lastName    String?
-  companyName String?
-  industry    String?
+  id             Int      @id @default(autoincrement())
+  email          String
+  password       String
+  role           Role
+  active         Boolean?
+  firstName      String?
+  lastName       String?
+  companyName    String?
+  industry       String?
+  companyProfile String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -31,7 +32,7 @@ model Job {
   industry        String?
   companyProfile  String?
   location        String?
-  salary          String?
+  salary          Int[]
   urgent          Boolean?   @default(false)
   jobDescriptions String[]
   qualifications  String[]
