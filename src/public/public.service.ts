@@ -1,16 +1,19 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import type { Provinces } from 'src/types';
 import { Injectable } from '@nestjs/common';
-import { accepts } from 'src/lib';
+import { accepts, exceptions } from 'src/lib';
 import { industries } from './data';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
+import { DbService } from 'src/db';
+import { MESSAGE } from 'src/constants';
 
 @Injectable()
 export class PublicService {
   constructor(
     private readonly httpService: HttpService,
     private readonly config: ConfigService,
+    private readonly db: DbService,
   ) {}
   getIndustries() {
     const sortedIndustries = industries.sort((a, b) => a.id - b.id);
@@ -37,5 +40,33 @@ export class PublicService {
       data: mappedProvince,
       total: mappedProvince.length,
     });
+  }
+
+  async getJobs() {
+    const data = await this.db.job.findMany({
+      where: { active: true },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        position: true,
+        salary: true,
+        location: true,
+        urgent: true,
+        style: true,
+        company: true,
+        updatedAt: true,
+        createdAt: true,
+      },
+    });
+
+    return accepts(MESSAGE.GETTED_JOBS, { data, total: data.length });
+  }
+
+  async getJob(id: number) {
+    const data = await this.db.job
+      .findFirstOrThrow({ where: { id } })
+      .catch(() => exceptions.badRequest(MESSAGE.JOB_NOT_FOUND));
+
+    return accepts(MESSAGE.GETTED_JOBS, { data });
   }
 }

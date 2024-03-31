@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { PublicKeyGuard } from 'src/guards';
 import { PublicService } from './public.service';
 
@@ -12,8 +12,20 @@ export class PublicController {
     return this.service.getIndustries();
   }
 
-  @Get('/province')
+  @Get('province')
   getProvince() {
     return this.service.getProvince();
+  }
+
+  @UseGuards(PublicKeyGuard)
+  @Get('job/list')
+  getJobs() {
+    return this.service.getJobs();
+  }
+
+  @UseGuards(PublicKeyGuard)
+  @Get('job/:id')
+  getJob(@Param() { id }: { id: string }) {
+    return this.service.getJob(+id);
   }
 }

@@ -23,7 +23,7 @@ export class JobService {
     return accepts(MESSAGE.GETTED_JOBS, { data });
   }
 
-  async createJob(dto: CreateJobDto, user: User) {
+  async createJob(dto: CreateJobDto, user: User, isAllowedCheckLastest?: boolean) {
     const { companyName, companyProfile, industry } = user;
 
     const createLastest = await this.db.job.findMany({
@@ -32,7 +32,7 @@ export class JobService {
       take: 1,
     });
 
-    if (createLastest.length > 0) {
+    if (createLastest.length > 0 && !isAllowedCheckLastest) {
       checkLastUpdated(-30, createLastest.at(0).createdAt);
     }
 
@@ -58,12 +58,12 @@ export class JobService {
     return accepts(MESSAGE.JOB_CREATED, { data });
   }
 
-  async updateJob(id: number, dto: UpdateJobDto) {
+  async updateJob(id: number, dto: UpdateJobDto, isAllowedCheckLastest?: boolean) {
     const job = await this.db.job
       .findFirstOrThrow({ where: { id } })
       .catch(() => exceptions.badRequest(MESSAGE.JOB_NOT_FOUND));
 
-    if (!job.active) {
+    if (!job.active && !isAllowedCheckLastest) {
       checkLastUpdated(-10, job.updatedAt);
     }
 

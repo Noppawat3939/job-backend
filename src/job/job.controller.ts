@@ -18,11 +18,15 @@ import { JwtAuthGuard, RolesGuard } from 'src/guards';
 import { Role } from '@prisma/client';
 import { Request } from 'express';
 import { ACTIVE } from 'src/constants';
+import { ConfigService } from '@nestjs/config';
 
 @UseGuards(JwtAuthGuard)
 @Controller('job')
 export class JobController {
-  constructor(private readonly service: JobService) {}
+  constructor(
+    private readonly service: JobService,
+    private readonly config: ConfigService,
+  ) {}
 
   @Get('list')
   getJobs() {
@@ -39,7 +43,12 @@ export class JobController {
   @Post('create')
   @UsePipes(new ZodValidationPipe(createJobSchema))
   createJob(@Req() req: Request, @Body() body: CreateJobDto) {
-    return this.service.createJob(body, req.user);
+    const isAllowedCheckLastest = [
+      this.config.get('USER_AGENT_POSTMAN'),
+      this.config.get('USER_AGENT_THUNDER_CLIENT'),
+    ].includes(req.headers['user-agent']);
+
+    return this.service.createJob(body, req.user, isAllowedCheckLastest);
   }
 
   @UseGuards(RolesGuard)
@@ -48,8 +57,12 @@ export class JobController {
   @UsePipes(new ZodValidationPipe(updateJobSchema))
   updateJob(@Req() req: Request, @Body() body: UpdateJobDto) {
     const id = Number(req.params.id);
+    const isAllowedCheckLastest = [
+      this.config.get('USER_AGENT_POSTMAN'),
+      this.config.get('USER_AGENT_THUNDER_CLIENT'),
+    ].includes(req.headers['user-agent']);
 
-    return this.service.updateJob(id, body);
+    return this.service.updateJob(id, body, isAllowedCheckLastest);
   }
 
   @UseGuards(RolesGuard)
