@@ -134,3 +134,7 @@ export const transportJobSchema = {
   common: z.string().array().optional(),
   create: z.string().array().optional(),
 };
+
+export const fulltimeJobSchema = {
+  common: z.boolean().optional(),
+};

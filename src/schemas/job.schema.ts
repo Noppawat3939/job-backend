@@ -4,6 +4,7 @@ import {
   comppanyLocationSchema,
   contractJobSchema,
   descriptionJobSchema,
+  fulltimeJobSchema,
   positionJobSchema,
   qualificationJobSchema,
   salaryJobSchema,
@@ -22,6 +23,7 @@ export const createJobSchema = z.object({
   benefits: benefitJobSchema.create,
   contracts: contractJobSchema.create,
   transports: transportJobSchema.create,
+  fulltime: fulltimeJobSchema.common,
 });
 
 export const updateJobSchema = z.object({
@@ -34,6 +36,7 @@ export const updateJobSchema = z.object({
   benefits: benefitJobSchema.common,
   contracts: contractJobSchema.common,
   transports: transportJobSchema.common,
+  fulltime: fulltimeJobSchema.common,
 });
 
 export class CreateJobDto extends createZodDto(createJobSchema) {}

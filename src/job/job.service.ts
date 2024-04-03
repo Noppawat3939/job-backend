@@ -52,6 +52,7 @@ export class JobService {
         benefits: dto.benefits,
         contracts: dto.contracts,
         transports: dto.transports,
+        fulltime: dto.fulltime,
       },
     });
 
@@ -81,6 +82,7 @@ export class JobService {
         ...(dto.benefits && { benefits: dto.benefits }),
         ...(dto.contracts && { contracts: dto.contracts }),
         ...(dto.transports && { transports: dto.transports }),
+        ...(dto.fulltime && { fulltime: dto.fulltime }),
       },
     });
 
