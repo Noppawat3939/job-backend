@@ -43,11 +43,11 @@ export class AuthService {
   }
 
   async signupCompany(dto: SignupCompanyDto) {
-    await this.db.user
-      .findFirstOrThrow({
-        where: { role: Role.employer, companyName: dto.companyName, email: dto.email },
-      })
-      .catch(() => exceptions.badRequest(MESSAGE.COMPANY_EXITS));
+    const company = await this.db.user.findFirst({
+      where: { companyName: dto.companyName, email: dto.email },
+    });
+
+    if (company) return exceptions.badRequest(MESSAGE.COMPANY_EXITS);
 
     const password = await hash(dto.password);
 
