@@ -22,7 +22,7 @@ export class UserService {
       orderBy: { id: 'asc' },
     });
 
-    const excluded = exclude(users, ['password', 'active', 'updatedAt']);
+    const excluded = exclude(users, ['password', 'updatedAt']);
 
     return accepts(MESSAGE.GETTED_USERS, {
       data: excluded,
