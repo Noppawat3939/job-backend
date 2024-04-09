@@ -19,7 +19,7 @@ export class UserService {
 
     const users = await this.db.user.findMany({
       where: filter,
-      orderBy: { id: 'asc' },
+      orderBy: { id: 'desc' },
     });
 
     const excluded = exclude(users, ['password', 'updatedAt']);

@@ -95,7 +95,7 @@ export class UserController {
 
   @UseGuards(RolesGuard)
   @SetMetadata('role', [Role.super_admin])
-  @Patch('reject/:id')
+  @Patch('un-approve/:id')
   unApproveUser(@Param() { id }: { id: string }) {
     return this.service.approveOrRejectUser(+id, ACTIVE.UN_APPROVE);
   }
