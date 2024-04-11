@@ -124,7 +124,7 @@ export class JobService {
 
         return accepts(MESSAGE.JOB_DELETED);
       } else {
-        return exceptions.badRequest(`Can't delete approved job`);
+        return exceptions.badRequest("Can't delete approved job");
       }
     }
 
