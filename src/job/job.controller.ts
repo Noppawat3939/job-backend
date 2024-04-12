@@ -67,21 +67,21 @@ export class JobController {
 
   @UseGuards(RolesGuard)
   @SetMetadata('role', [Role.super_admin, Role.admin])
-  @Patch('approve/:id')
+  @Post('approve/:id')
   approveJob(@Param() { id }: { id: string }) {
     return this.service.approveOrRejectJob(+id, ACTIVE.APPROVED);
   }
 
   @UseGuards(RolesGuard)
   @SetMetadata('role', [Role.super_admin])
-  @Patch('reject/:id')
+  @Post('reject/:id')
   rejectJob(@Param() { id }: { id: string }) {
     return this.service.approveOrRejectJob(+id, ACTIVE.REJECTED);
   }
 
   @UseGuards(RolesGuard)
   @SetMetadata('role', [Role.super_admin])
-  @Patch('un-approve/:id')
+  @Post('un-approve/:id')
   unApproveJob(@Param() { id }: { id: string }) {
     return this.service.approveOrRejectJob(+id, ACTIVE.UN_APPROVE);
   }

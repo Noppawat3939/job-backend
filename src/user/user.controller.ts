@@ -4,7 +4,6 @@ import {
   Delete,
   Get,
   Param,
-  Patch,
   Post,
   Req,
   SetMetadata,
@@ -81,21 +80,21 @@ export class UserController {
 
   @UseGuards(RolesGuard)
   @SetMetadata('role', [Role.super_admin])
-  @Patch('approve/:id')
+  @Post('approve/:id')
   approveUser(@Param() { id }: { id: string }) {
     return this.service.approveOrRejectUser(+id, ACTIVE.APPROVED);
   }
 
   @UseGuards(RolesGuard)
   @SetMetadata('role', [Role.super_admin])
-  @Patch('reject/:id')
+  @Post('reject/:id')
   rejectUser(@Param() { id }: { id: string }) {
     return this.service.approveOrRejectUser(+id, ACTIVE.REJECTED);
   }
 
   @UseGuards(RolesGuard)
   @SetMetadata('role', [Role.super_admin])
-  @Patch('un-approve/:id')
+  @Post('un-approve/:id')
   unApproveUser(@Param() { id }: { id: string }) {
     return this.service.approveOrRejectUser(+id, ACTIVE.UN_APPROVE);
   }
