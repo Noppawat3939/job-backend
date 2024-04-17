@@ -15,11 +15,10 @@ export class PublicService {
     private readonly config: ConfigService,
     private readonly db: DbService,
   ) {}
-  getIndustries() {
+  getAllIndustries() {
     const sortedIndustries = industries.sort((a, b) => a.id - b.id);
 
     return accepts('Getted industries data is successfully', {
-      dataType: 'industry',
       data: sortedIndustries,
       total: sortedIndustries.length,
     });

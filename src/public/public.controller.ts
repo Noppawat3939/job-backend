@@ -8,8 +8,8 @@ export class PublicController {
 
   @UseGuards(PublicKeyGuard)
   @Get('industry')
-  getIndustryList() {
-    return this.service.getIndustries();
+  getAllIndustries() {
+    return this.service.getAllIndustries();
   }
 
   @Get('province')
