@@ -7,6 +7,7 @@ import { ZodValidationPipe } from 'nestjs-zod';
 import { PublicModule } from './public';
 import { UserModule } from './user';
 import { JobModule } from './job/job.module';
+import { CompanyModule } from './company';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { JobModule } from './job/job.module';
     PublicModule,
     UserModule,
     JobModule,
+    CompanyModule,
   ],
   providers: [{ provide: APP_PIPE, useClass: ZodValidationPipe }],
 })

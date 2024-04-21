@@ -1,5 +1,5 @@
 import { ACTIVE } from 'src/constants';
-import { Role } from '@prisma/client';
+import { Job, Role } from '@prisma/client';
 import { WorkStyle as PCWorkStyle } from '@prisma/client';
 
 const valueActive = Object.values(ACTIVE);
@@ -19,3 +19,21 @@ export type JwtPayload = { id: number; email: string; role: Role; iat: number; e
 export type QueryApproveUsers = (typeof valueActive)[number];
 
 export type WorkingStyle = typeof PCWorkStyle;
+
+export type QuerySalary = { salary_min: number; salary_max: number };
+
+export type QueryJobs = Partial<
+  Omit<
+    Job,
+    | 'id'
+    | 'companyProfile'
+    | 'jobDescriptions'
+    | 'qualifications'
+    | 'benefits'
+    | 'contracts'
+    | 'updatedAt'
+    | 'transports'
+    | 'salary'
+  > &
+    QuerySalary
+>;
