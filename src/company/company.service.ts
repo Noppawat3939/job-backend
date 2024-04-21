@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { User } from '@prisma/client';
+import { Job, User } from '@prisma/client';
 import { MESSAGE } from 'src/constants';
 import { DbService } from 'src/db';
-import { accepts, eq } from 'src/lib';
+import { accepts, eq, exceptions } from 'src/lib';
 import { QueryJobs } from 'src/types';
 
 const MIN_VALUE = 0;
@@ -46,5 +46,13 @@ export class CompanyService {
     });
 
     return accepts(MESSAGE.GETTED_JOBS, { data: filteredSalary, total: filteredSalary.length });
+  }
+
+  async openJobByTimes(company: User['companyName'], jobId: number) {
+    await this.db.job
+      .findFirstOrThrow({ where: { company, id: jobId } })
+      .catch(() => exceptions.badRequest(MESSAGE.JOB_NOT_FOUND));
+
+    return {};
   }
 }
