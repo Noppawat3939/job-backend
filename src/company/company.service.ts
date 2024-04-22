@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { Job, User } from '@prisma/client';
+import { User } from '@prisma/client';
 import { MESSAGE } from 'src/constants';
 import { DbService } from 'src/db';
-import { accepts, eq, exceptions } from 'src/lib';
+import { accepts, eq, generateQueryJob } from 'src/lib';
 import { QueryJobs } from 'src/types';
 
 const MIN_VALUE = 0;
@@ -16,17 +16,9 @@ export class CompanyService {
     const salary_min = +query?.salary_min || MIN_VALUE;
     const salary_max = +query?.salary_max || MIN_VALUE;
 
-    const filter = {
-      ...(query.style && { style: query.style }),
-      ...(query.position && { position: query.position }),
-      ...(query.industry && { industry: query.industry }),
-      ...(query.location && { location: query.location }),
-      ...(query.fulltime && { fulltime: eq(String(query.fulltime), 'true') }),
-      ...(query.urgent && { urgent: eq(String(query.urgent), 'true') }),
-      ...(query.active && {
-        active: eq(String(query.active), 'null') ? null : eq(String(query.active), 'true'),
-      }),
-    };
+    const filtered = generateQueryJob(query);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { company: _companyField, ...filter } = filtered;
 
     const data = await this.db.job.findMany({
       where: { company, ...filter },
@@ -46,13 +38,5 @@ export class CompanyService {
     });
 
     return accepts(MESSAGE.GETTED_JOBS, { data: filteredSalary, total: filteredSalary.length });
-  }
-
-  async openJobByTimes(company: User['companyName'], jobId: number) {
-    await this.db.job
-      .findFirstOrThrow({ where: { company, id: jobId } })
-      .catch(() => exceptions.badRequest(MESSAGE.JOB_NOT_FOUND));
-
-    return {};
   }
 }
