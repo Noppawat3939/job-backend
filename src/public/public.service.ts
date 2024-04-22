@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import type { Provinces } from 'src/types';
+import type { Provinces, QueryPublicJobs } from 'src/types';
 import { Injectable } from '@nestjs/common';
-import { accepts, exceptions } from 'src/lib';
+import { accepts, exceptions, generateQueryJob } from 'src/lib';
 import { industries } from './data';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
@@ -35,15 +35,18 @@ export class PublicService {
     });
 
     return accepts('Getted province data is successfully', {
-      dataType: 'province',
       data: mappedProvince,
       total: mappedProvince.length,
     });
   }
 
-  async getJobs() {
+  async getJobs(query?: QueryPublicJobs) {
+    const filter = generateQueryJob(query);
+
+    const where = { active: true, ...filter };
+
     const data = await this.db.job.findMany({
-      where: { active: true },
+      where,
       orderBy: { createdAt: 'desc' },
       select: {
         id: true,

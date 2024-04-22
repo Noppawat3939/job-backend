@@ -16,19 +16,17 @@ export class CompanyService {
     const salary_min = +query?.salary_min || MIN_VALUE;
     const salary_max = +query?.salary_max || MIN_VALUE;
 
-    const filtered = generateQueryJob(query);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { company: _companyField, ...filter } = filtered;
+    const filter = generateQueryJob(query);
 
-    const data = await this.db.job.findMany({
-      where: { company, ...filter },
-      orderBy: { createdAt: 'desc' },
-    });
+    const where = { company, ...filter };
+
+    const data = await this.db.job.findMany({ where, orderBy: { createdAt: 'desc' } });
 
     if (eq(data.length, MIN_VALUE)) return accepts(MESSAGE.JOB_NOT_FOUND);
 
     const filteredSalary = data.filter(({ salary }) => {
       const [min, max] = salary;
+
       const hasMinMax = eq(salary.length, SALARY_RANGE);
 
       if (hasMinMax && !eq(salary_max, MIN_VALUE)) return min >= salary_min && max <= salary_max;

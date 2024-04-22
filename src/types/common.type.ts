@@ -37,3 +37,8 @@ export type QueryJobs = Partial<
   > &
     QuerySalary
 >;
+
+export type QueryPublicJobs = Omit<
+  QueryJobs,
+  'active' | 'jobEndTime' | 'jobStartTime' | 'createdAt'
+>;
