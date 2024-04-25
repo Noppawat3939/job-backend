@@ -40,5 +40,5 @@ export type QueryJobs = Partial<
 
 export type QueryPublicJobs = Omit<
   QueryJobs,
-  'active' | 'jobEndTime' | 'jobStartTime' | 'createdAt'
+  'active' | 'jobEndTime' | 'jobStartTime' | 'createdAt' | 'urgent'
 >;

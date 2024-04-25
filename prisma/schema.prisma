@@ -43,6 +43,8 @@ model Job {
   fulltime        Boolean?   @default(true)
   jobStartTime    DateTime?
   jobEndTime      DateTime?
+  jobType         JobType?
+  province        String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -60,4 +62,11 @@ enum Role {
   admin
   employer
   user
+}
+
+enum JobType {
+  full_time
+  past_time
+  contract
+  internship
 }

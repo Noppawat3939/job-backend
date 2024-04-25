@@ -28,11 +28,11 @@ export class PublicService {
     const url = this.config.get('PROVINCE_JSON_URL');
     const { data } = await this.httpService.axiosRef.get<Provinces>(url);
 
-    const mappedProvince = data.map((data) => {
-      const { deleted_at, created_at, updated_at, ...rest } = data;
-
-      return { ...rest, province_key: data.name_en.replaceAll(' ', '_').toLowerCase() };
-    });
+    const mappedProvince = data.map((data) => ({
+      id: data.id,
+      name: { th: data.name_th, en: data.name_en },
+      code: data.name_en.replaceAll(' ', '_').toUpperCase(),
+    }));
 
     return accepts('Getted province data is successfully', {
       data: mappedProvince,
