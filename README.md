@@ -5,4 +5,20 @@
 [circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
 [circleci-url]: https://circleci.com/gh/nestjs/nest
 
-## Job api
+## Main features
+
+#### :zap: Authentication
+
+- Signin, signup and forget password by roles.
+
+#### :construction_worker: Users management
+
+- Create, view, update, delete user by roles.
+
+#### :memo: Jobs management
+
+- Create, view, update, delete job by roles.
+
+```
+application role include user, company, admin and super admin
+```
