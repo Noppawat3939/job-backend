@@ -55,6 +55,7 @@ export class PublicService {
       company: true,
       updatedAt: true,
       createdAt: true,
+      experienceLevel: true,
     };
 
     const data = await this.db.job.findMany({
