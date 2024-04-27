@@ -38,22 +38,26 @@ export class JobService {
 
     const salary = transform.toNumberArray(dto.salary);
 
+    const created = {
+      position: dto.position,
+      style: dto.style,
+      company: companyName,
+      companyProfile,
+      industry,
+      location: dto.location,
+      salary,
+      jobDescriptions: dto.jobDescriptions,
+      qualifications: dto.qualifications,
+      benefits: dto.benefits,
+      contracts: dto.contracts,
+      transports: dto.transports,
+      jobType: dto.jobType,
+      experienceLevel: dto.experienceLevel,
+      category: dto.category,
+    };
+
     const data = await this.db.job.create({
-      data: {
-        position: dto.position,
-        style: dto.style,
-        company: companyName,
-        companyProfile,
-        industry,
-        location: dto.location,
-        salary,
-        jobDescriptions: dto.jobDescriptions,
-        qualifications: dto.qualifications,
-        benefits: dto.benefits,
-        contracts: dto.contracts,
-        transports: dto.transports,
-        fulltime: dto.fulltime,
-      },
+      data: created,
     });
 
     return accepts(MESSAGE.JOB_CREATED, { data });
@@ -70,20 +74,24 @@ export class JobService {
 
     const salary = transform.toNumberArray(dto.salary);
 
+    const updated = {
+      ...(dto.position && { position: dto.position }),
+      ...(dto.style && { style: dto.style }),
+      ...(dto.location && { location: dto.location }),
+      ...(dto.salary && { salary }),
+      ...(dto.jobDescriptions && { jobDescriptions: dto.jobDescriptions }),
+      ...(dto.qualifications && { qualifications: dto.qualifications }),
+      ...(dto.benefits && { benefits: dto.benefits }),
+      ...(dto.contracts && { contracts: dto.contracts }),
+      ...(dto.transports && { transports: dto.transports }),
+      ...(dto.jobType && { jobType: dto.jobType }),
+      ...(dto.experienceLevel && { experienceLevel: dto.experienceLevel }),
+      ...(dto.category && { category: dto.category }),
+    };
+
     const data = await this.db.job.update({
       where: { id },
-      data: {
-        ...(dto.position && { position: dto.position }),
-        ...(dto.style && { style: dto.style }),
-        ...(dto.location && { location: dto.location }),
-        ...(dto.salary && { salary }),
-        ...(dto.jobDescriptions && { jobDescriptions: dto.jobDescriptions }),
-        ...(dto.qualifications && { qualifications: dto.qualifications }),
-        ...(dto.benefits && { benefits: dto.benefits }),
-        ...(dto.contracts && { contracts: dto.contracts }),
-        ...(dto.transports && { transports: dto.transports }),
-        ...(dto.fulltime && { fulltime: dto.fulltime }),
-      },
+      data: updated,
     });
 
     return accepts(MESSAGE.JOB_INFO_UPDATED, { data });

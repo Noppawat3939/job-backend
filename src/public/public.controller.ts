@@ -18,6 +18,11 @@ export class PublicController {
     return this.service.getProvince();
   }
 
+  @Get('job-categories')
+  getJobCategories() {
+    return this.service.getJobCateories();
+  }
+
   @Get('job/list')
   getJobs(@Query() query: QueryPublicJobs) {
     return this.service.getJobs(query);

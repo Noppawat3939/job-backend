@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { MESSAGE } from 'src/constants';
 import { DbService } from 'src/db';
-import { accepts, eq, generateQueryJob } from 'src/lib';
+import { accepts, eq, generateQueryJobs } from 'src/lib';
 import { QueryJobs } from 'src/types';
 
 const MIN_VALUE = 0;
@@ -16,7 +16,7 @@ export class CompanyService {
     const salary_min = +query?.salary_min || MIN_VALUE;
     const salary_max = +query?.salary_max || MIN_VALUE;
 
-    const filter = generateQueryJob(query);
+    const filter = generateQueryJobs(query);
 
     const where = { company, ...filter };
 

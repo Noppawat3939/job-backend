@@ -19,6 +19,7 @@ export const MESSAGE = {
   NOT_PERMISSION: "Can't access to resources, your accout not permission",
   GETTED_USERS: 'Getted users successfully',
   GETTED_JOBS: 'Getted jobs successfully',
+  GETTED_PROVINCES: 'Getted province data is successfully',
   USER_APPROVED: 'User approved successfully',
   USER_REJECTED: 'User rejected successfully',
   JOB_APPROVED: 'Job approved successfully',
@@ -26,4 +27,6 @@ export const MESSAGE = {
   USER_DELETED: 'User deleted successfully',
   JOB_DELETED: 'Job deleted successfully',
   RESETED_ACTIVE: 'Reset active status successfully',
+  GETTED_JOB_CATEGORIES: 'Getted job categories data is successfully',
+  GETTED_INDUSTRIES: 'Getted industries data is successfully',
 } as const;

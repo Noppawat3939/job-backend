@@ -25,7 +25,7 @@ model User {
 }
 
 model Job {
-  id              Int        @id @default(autoincrement())
+  id              Int              @id @default(autoincrement())
   active          Boolean?
   position        String
   style           WorkStyle?
@@ -34,17 +34,18 @@ model Job {
   companyProfile  String?
   location        String?
   salary          Int[]
-  urgent          Boolean?   @default(false)
+  urgent          Boolean?         @default(false)
   jobDescriptions String[]
   qualifications  String[]
   benefits        String[]
   contracts       String[]
   transports      String[]
-  fulltime        Boolean?   @default(true)
   jobStartTime    DateTime?
   jobEndTime      DateTime?
   jobType         JobType?
   province        String?
+  category        String?
+  experienceLevel ExperienceLevel?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -69,4 +70,11 @@ enum JobType {
   past_time
   contract
   internship
+}
+
+enum ExperienceLevel {
+  entry
+  middle
+  senior
+  no_required
 }

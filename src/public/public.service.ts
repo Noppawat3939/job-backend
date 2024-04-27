@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import type { Provinces, QueryPublicJobs } from 'src/types';
 import { Injectable } from '@nestjs/common';
-import { accepts, exceptions, generateQueryJob } from 'src/lib';
-import { industries } from './data';
+import { accepts, exceptions, generateQueryJobs, pretty } from 'src/lib';
+import { industries, jobCategories } from './data';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { DbService } from 'src/db';
@@ -18,7 +18,7 @@ export class PublicService {
   getAllIndustries() {
     const sortedIndustries = industries.sort((a, b) => a.id - b.id);
 
-    return accepts('Getted industries data is successfully', {
+    return accepts(MESSAGE.GETTED_INDUSTRIES, {
       data: sortedIndustries,
       total: sortedIndustries.length,
     });
@@ -26,39 +26,41 @@ export class PublicService {
 
   async getProvince() {
     const url = this.config.get('PROVINCE_JSON_URL');
-    const { data } = await this.httpService.axiosRef.get<Provinces>(url);
+    const { data: provinces } = await this.httpService.axiosRef.get<Provinces>(url);
 
-    const mappedProvince = data.map((data) => ({
-      id: data.id,
-      name: { th: data.name_th, en: data.name_en },
-      code: data.name_en.replaceAll(' ', '_').toUpperCase(),
+    const mappedProvince = provinces.map((province) => ({
+      id: province.id,
+      name: { th: province.name_th, en: province.name_en },
+      code: pretty(province.name_en).toUpperCase(),
     }));
 
-    return accepts('Getted province data is successfully', {
+    return accepts(MESSAGE.GETTED_PROVINCES, {
       data: mappedProvince,
       total: mappedProvince.length,
     });
   }
 
   async getJobs(query?: QueryPublicJobs) {
-    const filter = generateQueryJob(query);
+    const filter = generateQueryJobs(query);
 
     const where = { active: true, ...filter };
+
+    const selected = {
+      id: true,
+      position: true,
+      salary: true,
+      location: true,
+      urgent: true,
+      style: true,
+      company: true,
+      updatedAt: true,
+      createdAt: true,
+    };
 
     const data = await this.db.job.findMany({
       where,
       orderBy: { createdAt: 'desc' },
-      select: {
-        id: true,
-        position: true,
-        salary: true,
-        location: true,
-        urgent: true,
-        style: true,
-        company: true,
-        updatedAt: true,
-        createdAt: true,
-      },
+      select: selected,
     });
 
     return accepts(MESSAGE.GETTED_JOBS, { data, total: data.length });
@@ -70,5 +72,14 @@ export class PublicService {
       .catch(() => exceptions.badRequest(MESSAGE.JOB_NOT_FOUND));
 
     return accepts(MESSAGE.GETTED_JOBS, { data });
+  }
+
+  getJobCateories() {
+    const categories = jobCategories;
+
+    return accepts(MESSAGE.GETTED_JOB_CATEGORIES, {
+      data: categories,
+      total: categories.length,
+    });
   }
 }

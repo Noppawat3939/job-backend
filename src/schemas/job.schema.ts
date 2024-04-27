@@ -1,10 +1,12 @@
 import { z } from 'nestjs-zod/z';
 import {
   benefitJobSchema,
+  categoryJobSchema,
   comppanyLocationSchema,
   contractJobSchema,
   descriptionJobSchema,
-  fulltimeJobSchema,
+  experienceLevelSchema,
+  jobTypeSchema,
   positionJobSchema,
   qualificationJobSchema,
   salaryJobSchema,
@@ -23,7 +25,9 @@ export const createJobSchema = z.object({
   benefits: benefitJobSchema.create,
   contracts: contractJobSchema.create,
   transports: transportJobSchema.create,
-  fulltime: fulltimeJobSchema.common,
+  jobType: jobTypeSchema.create,
+  experienceLevel: experienceLevelSchema.create,
+  category: categoryJobSchema.create,
 });
 
 export const updateJobSchema = z.object({
@@ -36,7 +40,9 @@ export const updateJobSchema = z.object({
   benefits: benefitJobSchema.common,
   contracts: contractJobSchema.common,
   transports: transportJobSchema.common,
-  fulltime: fulltimeJobSchema.common,
+  jobType: jobTypeSchema.update,
+  experienceLevel: experienceLevelSchema.update,
+  category: categoryJobSchema.common,
 });
 
 export class CreateJobDto extends createZodDto(createJobSchema) {}
