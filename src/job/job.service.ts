@@ -10,7 +10,7 @@ import type { QueryApproveUsers as QueryApproveJobs } from 'src/types';
 export class JobService {
   constructor(private readonly db: DbService) {}
   async getAll() {
-    const data = await this.db.job.findMany();
+    const data = await this.db.job.findMany({ orderBy: { createdAt: 'desc' } });
 
     return accepts(MESSAGE.GETTED_JOBS, { data, total: data.length });
   }

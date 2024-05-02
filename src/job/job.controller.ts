@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   Param,
   Patch,
   Post,
@@ -19,6 +20,7 @@ import { Role } from '@prisma/client';
 import { Request } from 'express';
 import { ACTIVE } from 'src/constants';
 import { ConfigService } from '@nestjs/config';
+import { HttpStatusCode } from 'axios';
 
 @UseGuards(JwtAuthGuard)
 @Controller('job')
@@ -65,6 +67,7 @@ export class JobController {
     return this.service.updateJob(id, body, isAllowedCheckLastest);
   }
 
+  @HttpCode(HttpStatusCode.Ok)
   @UseGuards(RolesGuard)
   @SetMetadata('role', [Role.super_admin, Role.admin])
   @Post('approve/:id')
@@ -72,6 +75,7 @@ export class JobController {
     return this.service.approveOrRejectJob(+id, ACTIVE.APPROVED);
   }
 
+  @HttpCode(HttpStatusCode.Ok)
   @UseGuards(RolesGuard)
   @SetMetadata('role', [Role.super_admin])
   @Post('reject/:id')
@@ -79,6 +83,7 @@ export class JobController {
     return this.service.approveOrRejectJob(+id, ACTIVE.REJECTED);
   }
 
+  @HttpCode(HttpStatusCode.Ok)
   @UseGuards(RolesGuard)
   @SetMetadata('role', [Role.super_admin])
   @Post('un-approve/:id')
