@@ -33,7 +33,7 @@ export class JobService {
     });
 
     if (createLastest.length > 0 && !isAllowedCheckLastest) {
-      checkLastUpdated(-30, createLastest.at(0).createdAt);
+      checkLastUpdated(-10, createLastest.at(0).createdAt);
     }
 
     const salary = transform.toNumberArray(dto.salary);
