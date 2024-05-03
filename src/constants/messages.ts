@@ -29,4 +29,9 @@ export const MESSAGE = {
   RESETED_ACTIVE: 'Reset active status successfully',
   GETTED_JOB_CATEGORIES: 'Getted job categories data is successfully',
   GETTED_INDUSTRIES: 'Getted industries data is successfully',
+  GETTED_APPLIED_JOBS: 'Getted applications is successfully',
+  APPLIED_JOB: 'Applied job is successfully',
+  CANCELLED_APPLICATION_JOB: 'Cancelled application is successfully',
+  APPLIED_JOB_STATUS_NOT_ACCEPT: 'Application status is not accept',
+  UPDATED_STATUS_APPLICATION_JOB: 'Updated status application is successfully',
 } as const;

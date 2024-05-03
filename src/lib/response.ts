@@ -4,6 +4,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import dayjs from 'dayjs';
 import { MESSAGE } from 'src/constants';
@@ -21,6 +22,9 @@ export const exceptions = {
   },
   notFound: (message = 'Error response not found', error = STATUS_TYPE[404]) => {
     throw new NotFoundException(message, error);
+  },
+  unProcessable: (message = 'Error response unprocessable', error = STATUS_TYPE[422]) => {
+    throw new UnprocessableEntityException(message, error);
   },
   internalServerError: (message = 'Error internal server', error = STATUS_TYPE[500]) => {
     throw new InternalServerErrorException(message, error);

@@ -72,7 +72,7 @@ export class AuthService {
         .findFirstOrThrow({
           where: { email: dto.email, companyName: dto.companyName, role: Role.employer },
         })
-        .catch(() => exceptions.badRequest(MESSAGE.USER_NOT_FOUND));
+        .catch(() => exceptions.notFound(MESSAGE.USER_NOT_FOUND));
 
       user = company;
     } else {
@@ -83,7 +83,7 @@ export class AuthService {
             NOT: { role: Role.employer },
           },
         })
-        .catch(() => exceptions.badRequest(MESSAGE.USER_NOT_FOUND));
+        .catch(() => exceptions.notFound(MESSAGE.USER_NOT_FOUND));
 
       user = userOrAdmin;
     }
@@ -109,13 +109,13 @@ export class AuthService {
         .findFirstOrThrow({
           where: { role: Role.employer, companyName: dto.companyName, email: dto.email },
         })
-        .catch(() => exceptions.badRequest(MESSAGE.USER_NOT_FOUND));
+        .catch(() => exceptions.notFound(MESSAGE.USER_NOT_FOUND));
 
       user = company;
     } else {
       const userWithAdmin = await this.db.user
         .findFirstOrThrow({ where: { email: dto.email, NOT: { role: Role.employer } } })
-        .catch(() => exceptions.badRequest(MESSAGE.USER_NOT_FOUND));
+        .catch(() => exceptions.notFound(MESSAGE.USER_NOT_FOUND));
 
       user = userWithAdmin;
     }

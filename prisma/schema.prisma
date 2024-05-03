@@ -97,5 +97,10 @@ enum ExperienceLevel {
 
 enum ApplicationStatus {
   applied
+  reviewing
+  interviewing
+  offering
+  offered
   rejected
+  cancelled
 }

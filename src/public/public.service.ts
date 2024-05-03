@@ -70,7 +70,7 @@ export class PublicService {
   async getJob(id: number) {
     const data = await this.db.job
       .findFirstOrThrow({ where: { id } })
-      .catch(() => exceptions.badRequest(MESSAGE.JOB_NOT_FOUND));
+      .catch(() => exceptions.notFound(MESSAGE.JOB_NOT_FOUND));
 
     return accepts(MESSAGE.GETTED_JOBS, { data });
   }

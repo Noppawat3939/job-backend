@@ -8,6 +8,7 @@ import { PublicModule } from './public';
 import { UserModule } from './user';
 import { JobModule } from './job/job.module';
 import { CompanyModule } from './company';
+import { UserJobModule } from './user-job';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { CompanyModule } from './company';
     UserModule,
     JobModule,
     CompanyModule,
+    UserJobModule,
   ],
   providers: [{ provide: APP_PIPE, useClass: ZodValidationPipe }],
 })

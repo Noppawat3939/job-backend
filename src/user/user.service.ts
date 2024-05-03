@@ -37,7 +37,7 @@ export class UserService {
   async approveOrRejectUser(id: number, action: QueryApproveUsers) {
     const user = await this.db.user
       .findFirstOrThrow({ where: { id } })
-      .catch(() => exceptions.badRequest(MESSAGE.USER_NOT_FOUND));
+      .catch(() => exceptions.notFound(MESSAGE.USER_NOT_FOUND));
 
     const isApproved = eq(action, ACTIVE.APPROVED);
     const isResetActive = eq(action, ACTIVE.UN_APPROVE);
@@ -61,7 +61,7 @@ export class UserService {
   async deleteUser(id: number) {
     await this.db.user
       .findFirstOrThrow({ where: { id } })
-      .catch(() => exceptions.badRequest(MESSAGE.USER_NOT_FOUND));
+      .catch(() => exceptions.notFound(MESSAGE.USER_NOT_FOUND));
 
     await this.db.user.delete({ where: { id } });
 

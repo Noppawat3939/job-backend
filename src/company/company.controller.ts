@@ -6,12 +6,12 @@ import { CompanyService } from './company.service';
 import { QueryJobs } from 'src/types';
 
 @UseGuards(JwtAuthGuard)
-@UseGuards(RolesGuard)
-@SetMetadata('role', [Role.employer])
 @Controller('company')
 export class CompanyController {
   constructor(private readonly service: CompanyService) {}
 
+  @UseGuards(RolesGuard)
+  @SetMetadata('role', [Role.employer])
   @Get('list')
   getJobsByCompany(@Req() req: Request, @Query() query: Omit<QueryJobs, 'company'>) {
     const user = req.user as User;

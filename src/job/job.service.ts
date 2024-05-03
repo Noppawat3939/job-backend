@@ -18,7 +18,7 @@ export class JobService {
   async getById(id: number) {
     const data = await this.db.job
       .findFirstOrThrow({ where: { id } })
-      .catch(() => exceptions.badRequest(MESSAGE.JOB_NOT_FOUND));
+      .catch(() => exceptions.notFound(MESSAGE.JOB_NOT_FOUND));
 
     return accepts(MESSAGE.GETTED_JOBS, { data });
   }
@@ -66,7 +66,7 @@ export class JobService {
   async updateJob(id: number, dto: UpdateJobDto, isAllowedCheckLastest?: boolean) {
     const job = await this.db.job
       .findFirstOrThrow({ where: { id } })
-      .catch(() => exceptions.badRequest(MESSAGE.JOB_NOT_FOUND));
+      .catch(() => exceptions.notFound(MESSAGE.JOB_NOT_FOUND));
 
     if (!job.active && !isAllowedCheckLastest) {
       checkLastUpdated(-10, job.updatedAt);
@@ -100,7 +100,7 @@ export class JobService {
   async approveOrRejectJob(id: number, action: QueryApproveJobs) {
     const job = await this.db.job
       .findFirstOrThrow({ where: { id } })
-      .catch(() => exceptions.badRequest(MESSAGE.JOB_NOT_FOUND));
+      .catch(() => exceptions.notFound(MESSAGE.JOB_NOT_FOUND));
 
     const isApproved = eq(action, ACTIVE.APPROVED);
     const isResetActive = eq(action, ACTIVE.UN_APPROVE);
@@ -124,7 +124,7 @@ export class JobService {
   async deleteJob(id: number, user: User) {
     const job = await this.db.job
       .findFirstOrThrow({ where: { id } })
-      .catch(() => exceptions.badRequest(MESSAGE.JOB_NOT_FOUND));
+      .catch(() => exceptions.notFound(MESSAGE.JOB_NOT_FOUND));
 
     if (eq(user.role, Role.employer)) {
       if (eq(job.active, null)) {
