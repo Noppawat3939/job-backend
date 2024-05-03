@@ -12,18 +12,20 @@ export class UserJobService {
   async getAppliedJobs(userId: number) {
     const selected = { id: true, job: true, applicationStatus: true, applicationDate: true };
 
-    const applications = await this.db.appliedJob.findMany({
-      where: {
-        userId,
-        applicationStatus: {
-          in: [
-            ApplicationStatus.applied,
-            ApplicationStatus.cancelled,
-            ApplicationStatus.rejected,
-            ApplicationStatus.offered,
-          ],
-        },
+    const filter = {
+      userId,
+      applicationStatus: {
+        in: [
+          ApplicationStatus.applied,
+          ApplicationStatus.cancelled,
+          ApplicationStatus.rejected,
+          ApplicationStatus.offered,
+        ],
       },
+    };
+
+    const applications = await this.db.appliedJob.findMany({
+      where: filter,
       select: selected,
       orderBy: { applicationDate: 'desc' },
     });
@@ -43,14 +45,14 @@ export class UserJobService {
 
     if (applicationRejected) return exceptions.unProcessable(MESSAGE.APPLIED_JOB_STATUS_NOT_ACCEPT);
 
-    const response = await this.db.appliedJob.create({
-      data: {
-        jobId: job.id,
-        userId,
-        applicationDate: dayjs().toISOString(),
-        applicationStatus: ApplicationStatus.applied,
-      },
-    });
+    const createdData = {
+      jobId: job.id,
+      userId,
+      applicationDate: dayjs().toISOString(),
+      applicationStatus: ApplicationStatus.applied,
+    };
+
+    const response = await this.db.appliedJob.create({ data: createdData });
 
     return accepts(MESSAGE.APPLIED_JOB, { data: response });
   }
@@ -67,9 +69,12 @@ export class UserJobService {
     )
       return exceptions.unProcessable(MESSAGE.APPLIED_JOB_STATUS_NOT_ACCEPT);
 
+    const filter = { id: appliedJob.id };
+    const updatedData = { applicationStatus: ApplicationStatus.cancelled };
+
     const response = await this.db.appliedJob.update({
-      where: { id: appliedJob.id },
-      data: { applicationStatus: ApplicationStatus.cancelled },
+      where: filter,
+      data: updatedData,
     });
 
     return accepts(MESSAGE.CANCELLED_APPLICATION_JOB, { data: response });
@@ -89,10 +94,10 @@ export class UserJobService {
     if (!Object.keys(mappingUpdateStatus).includes(application.applicationStatus))
       return exceptions.unProcessable(MESSAGE.APPLIED_JOB_STATUS_NOT_ACCEPT);
 
-    const response = await this.db.appliedJob.update({
-      where: { id: application.id },
-      data: { applicationStatus: mappingUpdateStatus[application.applicationStatus] },
-    });
+    const filter = { id: application.id };
+    const updatedData = { applicationStatus: mappingUpdateStatus[application.applicationStatus] };
+
+    const response = await this.db.appliedJob.update({ where: filter, data: updatedData });
 
     return accepts(MESSAGE.UPDATED_STATUS_APPLICATION_JOB, { data: response });
   }
