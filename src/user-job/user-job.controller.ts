@@ -8,6 +8,7 @@ import { Request } from 'express';
 @Controller('user-job')
 export class UserJobController {
   constructor(private readonly service: UserJobService) {}
+
   @UseGuards(RolesGuard)
   @SetMetadata('role', [Role.user])
   @Get('/applied')

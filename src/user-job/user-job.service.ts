@@ -1,15 +1,28 @@
 import dayjs from 'dayjs';
-import { Injectable } from '@nestjs/common';
+import { type Cache } from 'cache-manager';
+import { Inject, Injectable } from '@nestjs/common';
 import { ApplicationStatus } from '@prisma/client';
-import { MESSAGE } from 'src/constants';
+import { CACHE_KEY, MESSAGE } from 'src/constants';
 import { DbService } from 'src/db';
 import { accepts, exceptions } from 'src/lib';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UserJobService {
-  constructor(private readonly db: DbService) {}
+  constructor(
+    @Inject(CACHE_MANAGER) private readonly cache: Cache,
+    private readonly db: DbService,
+    private readonly config: ConfigService,
+  ) {}
 
   async getAppliedJobs(userId: number) {
+    const cached = await this.cache.get<string>(CACHE_KEY.APPLIED_JOBS);
+
+    if (cached) {
+      return JSON.parse(cached);
+    }
+
     const selected = { id: true, job: true, applicationStatus: true, applicationDate: true };
 
     const filter = {
@@ -29,8 +42,15 @@ export class UserJobService {
       select: selected,
       orderBy: { applicationDate: 'desc' },
     });
+    const response = { data: applications, total: applications.length };
 
-    return accepts(MESSAGE.GETTED_APPLIED_JOBS, { data: applications, total: applications.length });
+    await this.cache.set(
+      CACHE_KEY.APPLIED_JOBS,
+      JSON.stringify(response),
+      +this.config.get('CACHE_TTL'),
+    );
+
+    return accepts(MESSAGE.GETTED_APPLIED_JOBS, response);
   }
 
   async applyJob(jobId: number, userId: number) {
