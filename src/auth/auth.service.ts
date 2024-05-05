@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Role, User } from '@prisma/client';
 import { MESSAGE } from 'src/constants';
 import { DbService } from 'src/db';
-import { accepts, checkLastUpdated, compareHash, exceptions, hash } from 'src/lib';
+import { accepts, checkLastUpdated, compareHash, eq, exceptions, hash } from 'src/lib';
 import {
   ForgotPasswordCompanyDto,
   ForgotPasswordUserWithAdminDto,
@@ -26,7 +26,6 @@ export class AuthService {
     });
 
     if (user) return exceptions.badRequest(MESSAGE.EMAIL_EXITS);
-
     const password = await hash(dto.password);
 
     await this.db.user.create({
@@ -36,6 +35,7 @@ export class AuthService {
         lastName: dto.lastName,
         password,
         role,
+        active: eq(role, 'user') ? true : null,
       },
     });
 
