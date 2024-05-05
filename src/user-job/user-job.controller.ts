@@ -1,8 +1,18 @@
-import { Controller, Get, Param, Post, Req, SetMetadata, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  Req,
+  SetMetadata,
+  UseGuards,
+} from '@nestjs/common';
 import { Role, User } from '@prisma/client';
 import { JwtAuthGuard, RolesGuard } from 'src/guards';
 import { UserJobService } from './user-job.service';
 import { Request } from 'express';
+import { HttpStatusCode } from 'axios';
 
 @UseGuards(JwtAuthGuard)
 @Controller('user-job')
@@ -20,6 +30,7 @@ export class UserJobController {
 
   @UseGuards(RolesGuard)
   @SetMetadata('role', [Role.user])
+  @HttpCode(HttpStatusCode.Ok)
   @Post('/apply/:id')
   applyJob(@Param() { id }: { id: string }, @Req() req: Request) {
     const user = req.user as User;

@@ -16,7 +16,7 @@ import { JobService } from './job.service';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { CreateJobDto, UpdateJobDto, createJobSchema, updateJobSchema } from 'src/schemas';
 import { JwtAuthGuard, RolesGuard } from 'src/guards';
-import { Role } from '@prisma/client';
+import { Role, User } from '@prisma/client';
 import { Request } from 'express';
 import { ACTIVE } from 'src/constants';
 import { ConfigService } from '@nestjs/config';
@@ -36,8 +36,10 @@ export class JobController {
   }
 
   @Get('list/:id')
-  getJob(@Param() { id }: { id: string }) {
-    return this.service.getById(+id);
+  getJob(@Param() { id }: { id: string }, @Req() req: Request) {
+    const user = req.user as User;
+
+    return this.service.getById(+id, user.id);
   }
 
   @UseGuards(RolesGuard)

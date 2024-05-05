@@ -15,12 +15,16 @@ export class JobService {
     return accepts(MESSAGE.GETTED_JOBS, { data, total: data.length });
   }
 
-  async getById(id: number) {
-    const data = await this.db.job
+  async getById(id: number, userId: number) {
+    const job = await this.db.job
       .findFirstOrThrow({ where: { id } })
       .catch(() => exceptions.notFound(MESSAGE.JOB_NOT_FOUND));
 
-    return accepts(MESSAGE.GETTED_JOBS, { data });
+    const appliedJob = await this.db.appliedJob.findFirst({ where: { jobId: job.id, userId } });
+
+    return accepts(MESSAGE.GETTED_JOBS, {
+      data: { ...job, ...(appliedJob && { applicationStatus: appliedJob.applicationStatus }) },
+    });
   }
 
   async createJob(dto: CreateJobDto, user: User, isAllowedCheckLastest?: boolean) {
