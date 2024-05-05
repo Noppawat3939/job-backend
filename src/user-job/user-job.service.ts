@@ -4,7 +4,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ApplicationStatus } from '@prisma/client';
 import { CACHE_KEY, MESSAGE } from 'src/constants';
 import { DbService } from 'src/db';
-import { accepts, exceptions } from 'src/lib';
+import { accepts, eq, exceptions } from 'src/lib';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { ConfigService } from '@nestjs/config';
 
@@ -23,7 +23,12 @@ export class UserJobService {
       return JSON.parse(cached);
     }
 
-    const selected = { id: true, job: true, applicationStatus: true, applicationDate: true };
+    const selected = {
+      id: true,
+      job: true,
+      applicationStatus: true,
+      applicationDate: true,
+    };
 
     const filter = {
       userId,
@@ -90,7 +95,10 @@ export class UserJobService {
       return exceptions.unProcessable(MESSAGE.APPLIED_JOB_STATUS_NOT_ACCEPT);
 
     const filter = { id: appliedJob.id };
-    const updatedData = { applicationStatus: ApplicationStatus.cancelled };
+    const updatedData = {
+      applicationStatus: ApplicationStatus.cancelled,
+      cancelledDate: dayjs().toISOString(),
+    };
 
     const response = await this.db.appliedJob.update({
       where: filter,
@@ -115,7 +123,16 @@ export class UserJobService {
       return exceptions.unProcessable(MESSAGE.APPLIED_JOB_STATUS_NOT_ACCEPT);
 
     const filter = { id: application.id };
-    const updatedData = { applicationStatus: mappingUpdateStatus[application.applicationStatus] };
+
+    const isRejected = eq(
+      mappingUpdateStatus[application.applicationStatus],
+      ApplicationStatus.rejected,
+    );
+
+    const updatedData = {
+      applicationStatus: mappingUpdateStatus[application.applicationStatus],
+      ...(isRejected && { rejectedDate: dayjs().toISOString() }),
+    };
 
     const response = await this.db.appliedJob.update({ where: filter, data: updatedData });
 

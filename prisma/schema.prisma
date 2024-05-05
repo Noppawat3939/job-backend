@@ -64,6 +64,8 @@ model AppliedJob {
   job    Job  @relation(fields: [jobId], references: [id])
 
   applicationDate   DateTime?
+  cancelledDate     DateTime?
+  rejectedDate      DateTime?
   applicationStatus ApplicationStatus?
 }
 
