@@ -28,6 +28,7 @@ export class UserJobService {
       job: true,
       applicationStatus: true,
       applicationDate: true,
+      cancelledDate: true,
     };
 
     const filter = {
@@ -99,6 +100,8 @@ export class UserJobService {
       applicationStatus: ApplicationStatus.cancelled,
       cancelledDate: dayjs().toISOString(),
     };
+
+    await this.cache.del(CACHE_KEY.APPLIED_JOBS);
 
     const response = await this.db.appliedJob.update({
       where: filter,
