@@ -21,11 +21,11 @@ export class AuthService {
   ) {}
 
   async signupUserWithAdmin(dto: SignupUserWithAdminDto, role: Role) {
-    await this.db.user
-      .findFirstOrThrow({
-        where: { email: dto.email, role },
-      })
-      .catch(() => exceptions.badRequest(MESSAGE.EMAIL_EXITS));
+    const user = await this.db.user.findFirst({
+      where: { email: dto.email, role },
+    });
+
+    if (user) return exceptions.badRequest(MESSAGE.EMAIL_EXITS);
 
     const password = await hash(dto.password);
 
