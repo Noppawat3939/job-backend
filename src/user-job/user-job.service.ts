@@ -78,6 +78,8 @@ export class UserJobService {
       applicationStatus: ApplicationStatus.applied,
     };
 
+    await this.cache.del(CACHE_KEY.APPLIED_JOBS);
+
     const response = await this.db.appliedJob.create({ data: createdData });
 
     return accepts(MESSAGE.APPLIED_JOB, { data: response });
