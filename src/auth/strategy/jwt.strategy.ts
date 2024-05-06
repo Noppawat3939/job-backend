@@ -4,14 +4,18 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { DbService } from 'src/db';
 import { ConfigService } from '@nestjs/config';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { eq, exceptions } from 'src/lib';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
+import { CACHE_KEY } from 'src/constants';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(
     private db: DbService,
     config: ConfigService,
+    @Inject(CACHE_MANAGER) private readonly cache: Cache,
   ) {
     const secretOrKey = config.get('JWT_SECRET');
 
@@ -23,6 +27,12 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 
   async validate(payload: JwtPayload) {
     const isEmployer = eq(payload.role, Role.employer);
+
+    const cachedUser = await this.cache.get<string>(CACHE_KEY.USER);
+
+    if (cachedUser) {
+      return JSON.parse(cachedUser);
+    }
 
     const user = await this.db.user.findFirst({
       where: { id: payload.id, email: payload.email },
@@ -40,6 +50,8 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
 
     if (!user) return exceptions.unAuthorized();
+
+    await this.cache.set(CACHE_KEY.USER, JSON.stringify(user), 30 * 1000);
 
     return user;
   }
