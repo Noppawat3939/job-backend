@@ -143,4 +143,46 @@ export class UserJobService {
 
     return accepts(MESSAGE.UPDATED_STATUS_APPLICATION_JOB, { data: response });
   }
+
+  async favoriteJob(jobId: number, userId: number) {
+    await this.db.job
+      .findFirstOrThrow({ where: { id: jobId } })
+      .catch(() => exceptions.notFound(MESSAGE.JOB_NOT_FOUND));
+
+    const favorited = await this.db.favoriteJob.findFirst({
+      where: { userId, jobId },
+      orderBy: { favoriteDate: 'desc' },
+    });
+
+    if (favorited) {
+      const deleted = await this.db.favoriteJob.delete({
+        where: { id: favorited.id, jobId, userId },
+      });
+
+      return accepts(MESSAGE.REMOVED_FAVORITE_JOB, { data: deleted });
+    }
+
+    const data = await this.db.favoriteJob.create({
+      data: { jobId, userId, favoriteDate: dayjs().toISOString() },
+    });
+
+    return accepts(MESSAGE.ADDED_FAVORITE_JOB, { data });
+  }
+
+  async getFavoriteJobs(userId: number) {
+    const cached = await this.cache.get<string>(CACHE_KEY.FAVORITED_JOBS);
+
+    if (cached) {
+      return JSON.parse(cached);
+    }
+
+    const data = await this.db.favoriteJob.findMany({
+      where: { userId },
+      orderBy: { favoriteDate: 'desc' },
+    });
+
+    this.cache.set(CACHE_KEY.FAVORITED_JOBS, JSON.stringify({ data }));
+
+    return accepts(MESSAGE.GETTED_FAVORITED_JOBS, { data });
+  }
 }

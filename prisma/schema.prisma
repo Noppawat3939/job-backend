@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
 }
 
 datasource db {
@@ -20,9 +21,10 @@ model User {
   companyProfile String?
   companyHistory String?
 
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt
-  AppliedJob AppliedJob[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  AppliedJob  AppliedJob[]
+  FavoriteJob FavoriteJob[]
 }
 
 model Job {
@@ -51,7 +53,8 @@ model Job {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  AppliedJob AppliedJob[]
+  AppliedJob  AppliedJob[]
+  FavoriteJob FavoriteJob[]
 
   @@map("job")
 }
@@ -67,6 +70,16 @@ model AppliedJob {
   cancelledDate     DateTime?
   rejectedDate      DateTime?
   applicationStatus ApplicationStatus?
+}
+
+model FavoriteJob {
+  id     Int @id @default(autoincrement())
+  userId Int
+  jobId  Int
+
+  user         User      @relation(fields: [userId], references: [id])
+  job          Job       @relation(fields: [jobId], references: [id])
+  favoriteDate DateTime?
 }
 
 enum WorkStyle {

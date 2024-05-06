@@ -48,6 +48,25 @@ export class UserJobController {
   }
 
   @UseGuards(RolesGuard)
+  @SetMetadata('role', [Role.user])
+  @Get('/favorited')
+  favoritedJobs(@Req() req: Request) {
+    const user = req.user as User;
+
+    return this.service.getFavoriteJobs(user.id);
+  }
+
+  @UseGuards(RolesGuard)
+  @SetMetadata('role', [Role.user])
+  @HttpCode(HttpStatusCode.Ok)
+  @Post('/favorite/:id')
+  favoriteJob(@Param() { id }: { id: string }, @Req() req: Request) {
+    const user = req.user as User;
+
+    return this.service.favoriteJob(+id, user.id);
+  }
+
+  @UseGuards(RolesGuard)
   @SetMetadata('role', [Role.admin])
   @Post('/update/:id')
   updateStatus(@Param() { id }: { id: string }) {
