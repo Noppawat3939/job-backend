@@ -24,13 +24,7 @@ export const signupCompanySchema = z.object({
   industry: industrySchema.create,
 });
 
-export const signinUserWithAdminSchema = z.object({
-  email: emailSchema.comon,
-  password: passwordSchema.common,
-});
-
-export const signinCompanySchema = z.object({
-  companyName: companyNameSchema.common,
+export const signinSchema = z.object({
   email: emailSchema.comon,
   password: passwordSchema.common,
 });
@@ -48,9 +42,8 @@ export const forgotPasswordCompanySchema = z.object({
 
 export class SignupUserWithAdminDto extends createZodDto(signupUserWithAdminSchema) {}
 export class SignupCompanyDto extends createZodDto(signupCompanySchema) {}
-export class SigninUserWithAdminDto extends createZodDto(signinUserWithAdminSchema) {}
-export class SigninCompanyDto extends createZodDto(signinCompanySchema) {}
 export class ForgotPasswordUserWithAdminDto extends createZodDto(
   forgotPasswordUserWithAdminSchema,
 ) {}
 export class ForgotPasswordCompanyDto extends createZodDto(forgotPasswordCompanySchema) {}
+export class SigninDto extends createZodDto(signinSchema) {}

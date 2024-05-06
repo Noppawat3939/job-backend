@@ -3,14 +3,12 @@ import { ZodValidationPipe } from 'nestjs-zod';
 import {
   ForgotPasswordCompanyDto,
   ForgotPasswordUserWithAdminDto,
-  SigninCompanyDto,
-  SigninUserWithAdminDto,
+  SigninDto,
   SignupCompanyDto,
   SignupUserWithAdminDto,
   forgotPasswordCompanySchema,
   forgotPasswordUserWithAdminSchema,
-  signinCompanySchema,
-  signinUserWithAdminSchema,
+  signinSchema,
   signupCompanySchema,
   signupUserWithAdminSchema,
 } from 'src/schemas';
@@ -41,16 +39,18 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('signin')
-  @UsePipes(new ZodValidationPipe(signinUserWithAdminSchema))
-  signin(@Body() body: SigninUserWithAdminDto & SigninCompanyDto) {
+  @UsePipes(new ZodValidationPipe(signinSchema))
+  signin(@Body() body: SigninDto) {
     return this.service.signin(body);
   }
 
   @HttpCode(HttpStatus.OK)
   @Post('signin/company')
-  @UsePipes(new ZodValidationPipe(signinCompanySchema))
-  signinCompany(@Body() body: SigninCompanyDto) {
-    return this.service.signin(body);
+  @UsePipes(new ZodValidationPipe(signinSchema))
+  signinCompany(@Body() body: SigninDto) {
+    const withCompany = true;
+
+    return this.service.signin(body, withCompany);
   }
 
   @HttpCode(HttpStatus.OK)

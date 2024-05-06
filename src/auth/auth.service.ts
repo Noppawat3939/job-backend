@@ -7,8 +7,7 @@ import { accepts, checkLastUpdated, compareHash, eq, exceptions, hash } from 'sr
 import {
   ForgotPasswordCompanyDto,
   ForgotPasswordUserWithAdminDto,
-  SigninCompanyDto,
-  SigninUserWithAdminDto,
+  SigninDto,
   SignupCompanyDto,
   SignupUserWithAdminDto,
 } from 'src/schemas';
@@ -64,19 +63,19 @@ export class AuthService {
     return accepts(MESSAGE.USER_CREATED);
   }
 
-  async signin(dto: SigninUserWithAdminDto & SigninCompanyDto) {
+  async signin(dto: SigninDto, isCompany?: boolean) {
     let user: User;
 
-    if (dto.companyName) {
+    if (isCompany) {
       const company = await this.db.user
         .findFirstOrThrow({
-          where: { email: dto.email, companyName: dto.companyName, role: Role.employer },
+          where: { email: dto.email, role: Role.employer },
         })
         .catch(() => exceptions.notFound(MESSAGE.USER_NOT_FOUND));
 
       user = company;
     } else {
-      const userOrAdmin = await this.db.user
+      const notCompanyUser = await this.db.user
         .findFirstOrThrow({
           where: {
             email: dto.email,
@@ -85,7 +84,7 @@ export class AuthService {
         })
         .catch(() => exceptions.notFound(MESSAGE.USER_NOT_FOUND));
 
-      user = userOrAdmin;
+      user = notCompanyUser;
     }
 
     if (!user.active) return exceptions.fobbiden(MESSAGE.USER_NOT_ACTIVE);
