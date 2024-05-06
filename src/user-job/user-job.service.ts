@@ -181,7 +181,11 @@ export class UserJobService {
       orderBy: { favoriteDate: 'desc' },
     });
 
-    this.cache.set(CACHE_KEY.FAVORITED_JOBS, JSON.stringify({ data }));
+    this.cache.set(
+      CACHE_KEY.FAVORITED_JOBS,
+      JSON.stringify({ data }),
+      +this.config.get('CACHE_TTL'),
+    );
 
     return accepts(MESSAGE.GETTED_FAVORITED_JOBS, { data });
   }
