@@ -20,6 +20,7 @@ model User {
   industry       String?
   companyProfile String?
   companyHistory String?
+  provider       String?
 
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt

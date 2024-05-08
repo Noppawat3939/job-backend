@@ -42,3 +42,12 @@ export type QueryPublicJobs = Omit<
   QueryJobs,
   'active' | 'jobEndTime' | 'jobStartTime' | 'createdAt' | 'urgent'
 >;
+
+export type GoogleUser = {
+  providerId: string;
+  email: string;
+  name: string;
+  picture: string;
+  accessToken: string;
+  provider: string;
+};

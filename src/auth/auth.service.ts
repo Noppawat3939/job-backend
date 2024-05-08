@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Role, User } from '@prisma/client';
 import { MESSAGE } from 'src/constants';
@@ -11,12 +12,14 @@ import {
   SignupCompanyDto,
   SignupUserWithAdminDto,
 } from 'src/schemas';
+import { GoogleUser } from 'src/types';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly db: DbService,
     private readonly jwt: JwtService,
+    private readonly config: ConfigService,
   ) {}
 
   async signupUserWithAdmin(dto: SignupUserWithAdminDto, role: Role) {
@@ -128,5 +131,67 @@ export class AuthService {
     await this.db.user.update({ where: { id: user.id }, data: { password } });
 
     return accepts(MESSAGE.USER_FORGET_PASSWORD);
+  }
+
+  async getSocialSigninUrl(provider: string) {
+    const googleCbUrl = encodeURIComponent(this.config.get('GOOGLE_CALLBACK_URL'));
+
+    const mappingProviderUrl = {
+      google: `${this.config.get('GOOGLE_OAUTH_URL')}?response_type=code&redirect_uri=${googleCbUrl}&scope=profile%20email&client_id=${this.config.get('GOOGLE_CLIENT_ID')}&service=lso&o2v=2&ddm=0&flowName=GeneralOAuthFlow`,
+    };
+
+    const url = mappingProviderUrl[provider];
+
+    return accepts(null, { data: url });
+  }
+
+  async oAuthLogin(user: GoogleUser) {
+    try {
+      const foundUser = await this.db.user.findFirst({
+        where: { email: user.email, role: Role.user },
+      });
+
+      const payload = { id: 0, email: '', role: null } as {
+        id: number;
+        email: string;
+        role: Role | null;
+      };
+
+      if (!foundUser) {
+        const password = await hash(user.providerId);
+        const [firstName, lastName] = user.name.split(' ');
+
+        const created = await this.db.user.create({
+          data: {
+            email: user.email,
+            firstName,
+            lastName,
+            provider: user.provider,
+            password,
+            active: true,
+            role: Role.user,
+          },
+        });
+
+        payload.id = created.id;
+        payload.email = created.email;
+        payload.role = created.role;
+
+        const token = await this.jwt.signAsync(payload);
+
+        return { token };
+      }
+
+      payload.id = foundUser.id;
+      payload.email = foundUser.email;
+      payload.role = foundUser.role;
+
+      const token = await this.jwt.signAsync(payload);
+
+      return { token };
+    } catch (error) {
+      console.log(error);
+      return exceptions.internalServerError();
+    }
   }
 }

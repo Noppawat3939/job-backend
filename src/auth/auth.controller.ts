@@ -1,4 +1,16 @@
-import { Body, Controller, HttpCode, HttpStatus, Patch, Post, UsePipes } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Patch,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+  UsePipes,
+} from '@nestjs/common';
 import { ZodValidationPipe } from 'nestjs-zod';
 import {
   ForgotPasswordCompanyDto,
@@ -14,6 +26,9 @@ import {
 } from 'src/schemas';
 import { AuthService } from './auth.service';
 import { Role } from '@prisma/client';
+import { GoogleOauthGuard, SocialKeyAuthGuard } from 'src/guards';
+import { Request, Response } from 'express';
+import type { GoogleUser } from 'src/types';
 
 @Controller('auth')
 export class AuthController {
@@ -65,5 +80,22 @@ export class AuthController {
   @UsePipes(new ZodValidationPipe(forgotPasswordCompanySchema))
   forgotPasswordCompany(@Body() body: ForgotPasswordCompanyDto) {
     return this.service.forgotPassword(body);
+  }
+
+  @Get('signin/social/url')
+  @UseGuards(SocialKeyAuthGuard)
+  getSigninSocialUrl(@Req() req: Request) {
+    return this.service.getSocialSigninUrl(req['provider']);
+  }
+
+  @Get('google/redirect')
+  @UseGuards(GoogleOauthGuard)
+  async googleRedirect(@Req() req: Request, @Res() res: Response) {
+    const user = req.user as GoogleUser;
+
+    const { token } = await this.service.oAuthLogin(user);
+    console.log(token);
+    // res.json({ data: token });
+    return res.redirect(`http://localhost:3000/signin?selected=jobseeker`);
   }
 }
