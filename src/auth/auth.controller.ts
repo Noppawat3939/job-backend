@@ -28,11 +28,15 @@ import { AuthService } from './auth.service';
 import { Role } from '@prisma/client';
 import { GoogleOauthGuard, SocialKeyAuthGuard } from 'src/guards';
 import { Request, Response } from 'express';
-import type { GoogleUser } from 'src/types';
+import type { GoogleUser, JwtDecode } from 'src/types';
+import { JwtService } from '@nestjs/jwt';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly service: AuthService) {}
+  constructor(
+    private readonly service: AuthService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   @Post('signup/admin')
   @UsePipes(new ZodValidationPipe(signupUserWithAdminSchema))
@@ -85,7 +89,9 @@ export class AuthController {
   @Get('signin/social/url')
   @UseGuards(SocialKeyAuthGuard)
   getSigninSocialUrl(@Req() req: Request) {
-    return this.service.getSocialSigninUrl(req['provider']);
+    const callbackUrl = req.headers['callback-url'] as string;
+
+    return this.service.getSocialSigninUrl(req['provider'], callbackUrl);
   }
 
   @Get('google/redirect')
@@ -93,9 +99,12 @@ export class AuthController {
   async googleRedirect(@Req() req: Request, @Res() res: Response) {
     const user = req.user as GoogleUser;
 
-    const { token } = await this.service.oAuthLogin(user);
-    console.log(token);
-    // res.json({ data: token });
-    return res.redirect(`http://localhost:3000/signin?selected=jobseeker`);
+    const { token, url } = await this.service.oAuthLogin(user);
+    const { exp } = this.jwtService.decode(token) as JwtDecode;
+
+    const expires = new Date(Number(exp) * 1000);
+    res.cookie('token', token, { expires });
+
+    return res.redirect(url || 'http://localhost:3000');
   }
 }

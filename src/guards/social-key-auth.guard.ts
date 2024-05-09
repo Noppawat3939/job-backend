@@ -29,6 +29,8 @@ export class SocialKeyAuthGuard implements CanActivate {
 
     if (allowed) {
       req['provider'] = provider;
+      req['callback-url'] = req['callback-url'];
+
       return allowed;
     }
 

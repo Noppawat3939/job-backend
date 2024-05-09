@@ -7,7 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { Inject, Injectable } from '@nestjs/common';
 import { eq, exceptions } from 'src/lib';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
+import { type Cache } from 'cache-manager';
 import { CACHE_KEY } from 'src/constants';
 
 @Injectable()

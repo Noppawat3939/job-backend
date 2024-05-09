@@ -1,7 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Role, User } from '@prisma/client';
+import { Cache } from 'cache-manager';
 import { MESSAGE } from 'src/constants';
 import { DbService } from 'src/db';
 import { accepts, checkLastUpdated, compareHash, eq, exceptions, hash } from 'src/lib';
@@ -12,7 +14,7 @@ import {
   SignupCompanyDto,
   SignupUserWithAdminDto,
 } from 'src/schemas';
-import { GoogleUser } from 'src/types';
+import { GoogleUser, JwtPayload } from 'src/types';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +22,7 @@ export class AuthService {
     private readonly db: DbService,
     private readonly jwt: JwtService,
     private readonly config: ConfigService,
+    @Inject(CACHE_MANAGER) private readonly cache: Cache,
   ) {}
 
   async signupUserWithAdmin(dto: SignupUserWithAdminDto, role: Role) {
@@ -133,7 +136,9 @@ export class AuthService {
     return accepts(MESSAGE.USER_FORGET_PASSWORD);
   }
 
-  async getSocialSigninUrl(provider: string) {
+  async getSocialSigninUrl(provider: string, callbackUrl: string) {
+    await this.cache.set(provider, callbackUrl);
+
     const googleCbUrl = encodeURIComponent(this.config.get('GOOGLE_CALLBACK_URL'));
 
     const mappingProviderUrl = {
@@ -151,11 +156,7 @@ export class AuthService {
         where: { email: user.email, role: Role.user },
       });
 
-      const payload = { id: 0, email: '', role: null } as {
-        id: number;
-        email: string;
-        role: Role | null;
-      };
+      const payload = { id: 0, email: '', role: null } as JwtPayload;
 
       if (!foundUser) {
         const password = await hash(user.providerId);
@@ -170,28 +171,25 @@ export class AuthService {
             password,
             active: true,
             role: Role.user,
+            userProfile: user.picture,
           },
         });
 
         payload.id = created.id;
         payload.email = created.email;
         payload.role = created.role;
-
-        const token = await this.jwt.signAsync(payload);
-
-        return { token };
+      } else {
+        payload.id = foundUser.id;
+        payload.email = foundUser.email;
+        payload.role = foundUser.role;
       }
 
-      payload.id = foundUser.id;
-      payload.email = foundUser.email;
-      payload.role = foundUser.role;
-
       const token = await this.jwt.signAsync(payload);
+      const cachedUrl = await this.cache.get<string>(user.provider);
 
-      return { token };
+      return { token, url: cachedUrl };
     } catch (error) {
-      console.log(error);
-      return exceptions.internalServerError();
+      return exceptions.internalServerError(`Can't signin with ${user.provider}`);
     }
   }
 }

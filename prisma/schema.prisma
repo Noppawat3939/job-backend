@@ -19,6 +19,7 @@ model User {
   companyName    String?
   industry       String?
   companyProfile String?
+  userProfile    String?
   companyHistory String?
   provider       String?
 

@@ -16,6 +16,8 @@ export type Provinces = {
 
 export type JwtPayload = { id: number; email: string; role: Role; iat: number; exp: number };
 
+export type JwtDecode = { id: number; email: string; role: Role; iat: number; exp: number };
+
 export type QueryApproveUsers = (typeof valueActive)[number];
 
 export type WorkingStyle = typeof PCWorkStyle;
@@ -43,11 +45,15 @@ export type QueryPublicJobs = Omit<
   'active' | 'jobEndTime' | 'jobStartTime' | 'createdAt' | 'urgent'
 >;
 
+export enum Provider {
+  Google = 'google',
+}
+
 export type GoogleUser = {
   providerId: string;
   email: string;
   name: string;
   picture: string;
   accessToken: string;
-  provider: string;
+  provider: Provider;
 };
