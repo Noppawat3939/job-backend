@@ -105,6 +105,6 @@ export class AuthController {
     const expires = new Date(Number(exp) * 1000);
     res.cookie('token', token, { expires });
 
-    return res.redirect(url || 'http://localhost:3000');
+    return res.redirect(url);
   }
 }
