@@ -41,6 +41,8 @@ export class PublicService {
   }
 
   async getJobs(query?: QueryPublicJobs) {
+    const companyData: Array<{ id: number; companyName: string; userProfile: string }> = [];
+
     const filter = generateQueryJobs(query);
 
     const where = { active: true, ...filter };
@@ -58,10 +60,31 @@ export class PublicService {
       experienceLevel: true,
     };
 
-    const data = await this.db.job.findMany({
+    const jobs = await this.db.job.findMany({
       where,
       orderBy: { createdAt: 'desc' },
       select: selected,
+    });
+
+    const companies = [...new Set(jobs.map((row) => row.company))];
+
+    for (let i = 0; i < companies.length; i++) {
+      const companyName = companies[i];
+
+      const response = await this.db.user.findFirst({
+        where: { companyName },
+        select: { id: true, companyName: true, userProfile: true },
+      });
+
+      companyData.push(response);
+    }
+
+    const data = jobs.map((row) => {
+      if (companyData.map((comp) => comp.companyName).includes(row.company)) {
+        return { ...row, company: companyData?.[0] };
+      }
+
+      return row;
     });
 
     return accepts(MESSAGE.GETTED_JOBS, { data, total: data.length });
