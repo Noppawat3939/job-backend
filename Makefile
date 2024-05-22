@@ -1,3 +1,3 @@
 dev:
 	cp .env.develop .env
-	yarn dev
+	yarn cache clean &&	yarn dev
