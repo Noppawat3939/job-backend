@@ -21,10 +21,15 @@ export class JobService {
       .catch(() => exceptions.notFound(MESSAGE.JOB_NOT_FOUND));
 
     const appliedJob = await this.db.appliedJob.findFirst({ where: { jobId: job.id, userId } });
+    const favoritedJob = await this.db.favoriteJob.findFirst({ where: { jobId: job.id, userId } });
 
-    return accepts(MESSAGE.GETTED_JOBS, {
-      data: { ...job, ...(appliedJob && { applicationStatus: appliedJob.applicationStatus }) },
-    });
+    const data = {
+      ...job,
+      ...(appliedJob && { applicationStatus: appliedJob.applicationStatus }),
+      ...(favoritedJob && { favoritedJob: true }),
+    };
+
+    return accepts(MESSAGE.GETTED_JOBS, { data });
   }
 
   async createJob(dto: CreateJobDto, user: User, isAllowedCheckLastest?: boolean) {
