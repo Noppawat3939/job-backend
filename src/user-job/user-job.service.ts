@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { type Cache } from 'cache-manager';
 import { Inject, Injectable } from '@nestjs/common';
-import { ApplicationStatus } from '@prisma/client';
+import { ApplicationStatus, FavoriteJob, Job } from '@prisma/client';
 import { CACHE_KEY, MESSAGE } from 'src/constants';
 import { DbService } from 'src/db';
 import { accepts, eq, exceptions } from 'src/lib';
@@ -19,9 +19,7 @@ export class UserJobService {
   async getAppliedJobs(userId: number) {
     const cached = await this.cache.get<string>(CACHE_KEY.APPLIED_JOBS);
 
-    if (cached) {
-      return JSON.parse(cached);
-    }
+    if (cached) return accepts(MESSAGE.GETTED_APPLIED_JOBS, JSON.parse(cached));
 
     const selected = {
       id: true,
@@ -48,13 +46,10 @@ export class UserJobService {
       select: selected,
       orderBy: { applicationDate: 'desc' },
     });
+
     const response = { data: applications, total: applications.length };
 
-    await this.cache.set(
-      CACHE_KEY.APPLIED_JOBS,
-      JSON.stringify(response),
-      +this.config.get('CACHE_TTL'),
-    );
+    await this.cache.set(CACHE_KEY.APPLIED_JOBS, JSON.stringify(response));
 
     return accepts(MESSAGE.GETTED_APPLIED_JOBS, response);
   }
@@ -159,6 +154,8 @@ export class UserJobService {
         where: { id: favorited.id, jobId, userId },
       });
 
+      await this.cache.del(CACHE_KEY.FAVORITED_JOBS);
+
       return accepts(MESSAGE.REMOVED_FAVORITE_JOB, { data: deleted });
     }
 
@@ -166,6 +163,7 @@ export class UserJobService {
       data: { jobId, userId, favoriteDate: dayjs().toISOString() },
     });
 
+    await this.cache.del(CACHE_KEY.FAVORITED_JOBS);
     return accepts(MESSAGE.ADDED_FAVORITE_JOB, { data });
   }
 
@@ -173,7 +171,7 @@ export class UserJobService {
     const cached = await this.cache.get<string>(CACHE_KEY.FAVORITED_JOBS);
 
     if (cached) {
-      return JSON.parse(cached);
+      return accepts(MESSAGE.GETTED_FAVORITED_JOBS, JSON.parse(cached));
     }
 
     const data = await this.db.favoriteJob.findMany({
@@ -181,12 +179,24 @@ export class UserJobService {
       orderBy: { favoriteDate: 'desc' },
     });
 
+    const response = [] as (FavoriteJob & { job: Job })[];
+
+    for (let i = 0; i < data.length; i++) {
+      const row = data[i];
+
+      const job = await this.db.job.findFirst({
+        where: { id: row.jobId },
+      });
+
+      const result = { ...row, job };
+      response.push(result);
+    }
+
     this.cache.set(
       CACHE_KEY.FAVORITED_JOBS,
-      JSON.stringify({ data }),
-      +this.config.get('CACHE_TTL'),
+      JSON.stringify({ data: response, total: response.length }),
     );
 
-    return accepts(MESSAGE.GETTED_FAVORITED_JOBS, { data });
+    return accepts(MESSAGE.GETTED_FAVORITED_JOBS, { data: response, total: response.length });
   }
 }
