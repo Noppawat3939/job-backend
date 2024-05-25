@@ -192,7 +192,7 @@ export class UserJobService {
       response.push(result);
     }
 
-    this.cache.set(
+    await this.cache.set(
       CACHE_KEY.FAVORITED_JOBS,
       JSON.stringify({ data: response, total: response.length }),
     );
