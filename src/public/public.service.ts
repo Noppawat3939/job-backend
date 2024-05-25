@@ -1,12 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import type { Provinces, QueryPublicJobs } from 'src/types';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { accepts, exceptions, generateQueryJobs, pretty } from 'src/lib';
 import { industries, jobCategories } from './data';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { DbService } from 'src/db';
-import { MESSAGE } from 'src/constants';
+import { CACHE_KEY, MESSAGE } from 'src/constants';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class PublicService {
@@ -14,6 +16,7 @@ export class PublicService {
     private readonly httpService: HttpService,
     private readonly config: ConfigService,
     private readonly db: DbService,
+    @Inject(CACHE_MANAGER) private readonly cache: Cache,
   ) {}
   getAllIndustries() {
     const sortedIndustries = industries.sort((a, b) => a.id - b.id);
@@ -42,6 +45,12 @@ export class PublicService {
 
   async getJobs(query?: QueryPublicJobs) {
     const companyData: Array<{ id: number; companyName: string; userProfile: string }> = [];
+
+    const cached = await this.cache.get<string>(CACHE_KEY.PUBLIC_JOBS);
+
+    if (cached) {
+      return accepts(MESSAGE.GETTED_JOBS, JSON.parse(cached));
+    }
 
     const filter = generateQueryJobs(query);
 
@@ -87,7 +96,13 @@ export class PublicService {
       return row;
     });
 
-    return accepts(MESSAGE.GETTED_JOBS, { data, total: data.length });
+    const response = { data, total: data.length };
+
+    if (!cached) {
+      await this.cache.set(CACHE_KEY.PUBLIC_JOBS, JSON.stringify(response));
+    }
+
+    return accepts(MESSAGE.GETTED_JOBS, response);
   }
 
   async getJob(id: number) {
