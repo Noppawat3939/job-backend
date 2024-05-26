@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Role, User } from '@prisma/client';
 import { ACTIVE, MESSAGE } from 'src/constants';
 import { DbService } from 'src/db';
-import { accepts, checkLastUpdated, eq, exceptions, transform } from 'src/lib';
+import { accepts, checkLastUpdated, eq, exceptions, generateUpdateJob, transform } from 'src/lib';
 import { CreateJobDto, UpdateJobDto } from 'src/schemas';
 import type { QueryApproveUsers as QueryApproveJobs } from 'src/types';
 
@@ -83,25 +83,10 @@ export class JobService {
 
     const salary = transform.toNumberArray(dto.salary);
 
-    const updated = {
-      ...(dto.position && { position: dto.position }),
-      ...(dto.style && { style: dto.style }),
-      ...(dto.location && { location: dto.location }),
-      ...(dto.salary && { salary }),
-      ...(dto.jobDescriptions && { jobDescriptions: dto.jobDescriptions }),
-      ...(dto.qualifications && { qualifications: dto.qualifications }),
-      ...(dto.benefits && { benefits: dto.benefits }),
-      ...(dto.contracts && { contracts: dto.contracts }),
-      ...(dto.transports && { transports: dto.transports }),
-      ...(dto.jobType && { jobType: dto.jobType }),
-      ...(dto.experienceLevel && { experienceLevel: dto.experienceLevel }),
-      ...(dto.category && { category: dto.category }),
-    };
+    delete dto.salary;
+    const updated = generateUpdateJob({ ...dto, salary });
 
-    const data = await this.db.job.update({
-      where: { id },
-      data: updated,
-    });
+    const data = await this.db.job.update({ where: { id }, data: updated });
 
     return accepts(MESSAGE.JOB_INFO_UPDATED, { data });
   }

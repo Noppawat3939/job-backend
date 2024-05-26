@@ -57,3 +57,5 @@ export type GoogleUser = {
   accessToken: string;
   provider: Provider;
 };
+
+export type Transform<T, K extends { [k in keyof T]: unknown }> = Omit<T, keyof K> & K;

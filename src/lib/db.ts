@@ -1,5 +1,6 @@
-import { QueryJobs } from 'src/types';
+import { QueryJobs, Transform } from 'src/types';
 import { eq } from './commons';
+import { UpdateJobDto } from 'src/schemas';
 
 export const generateQueryJobs = (query: QueryJobs) => {
   const filter = {
@@ -18,4 +19,23 @@ export const generateQueryJobs = (query: QueryJobs) => {
   };
 
   return filter;
+};
+
+export const generateUpdateJob = (data: Transform<UpdateJobDto, { salary: number[] }>) => {
+  const updated = {
+    ...(data.position && { position: data.position }),
+    ...(data.style && { style: data.style }),
+    ...(data.location && { location: data.location }),
+    ...(data.salary && { salary: data.salary }),
+    ...(data.jobDescriptions && { jobDescriptions: data.jobDescriptions }),
+    ...(data.qualifications && { qualifications: data.qualifications }),
+    ...(data.benefits && { benefits: data.benefits }),
+    ...(data.contracts && { contracts: data.contracts }),
+    ...(data.transports && { transports: data.transports }),
+    ...(data.jobType && { jobType: data.jobType }),
+    ...(data.experienceLevel && { experienceLevel: data.experienceLevel }),
+    ...(data.category && { category: data.category }),
+  };
+
+  return updated;
 };
