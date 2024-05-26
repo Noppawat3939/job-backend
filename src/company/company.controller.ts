@@ -18,4 +18,13 @@ export class CompanyController {
 
     return this.service.getJobsByCompany(user.companyName, query);
   }
+
+  @UseGuards(RolesGuard)
+  @SetMetadata('role', [Role.employer])
+  @Get('list/applied')
+  getJobsApplied(@Req() req: Request) {
+    const user = req.user as User;
+
+    return this.service.getListApplied(user.companyName);
+  }
 }

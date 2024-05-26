@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { User } from '@prisma/client';
+import { ApplicationStatus, User } from '@prisma/client';
 import { MESSAGE } from 'src/constants';
 import { DbService } from 'src/db';
 import { accepts, eq, generateQueryJobs } from 'src/lib';
@@ -20,11 +20,11 @@ export class CompanyService {
 
     const where = { company, ...filter };
 
-    const data = await this.db.job.findMany({ where, orderBy: { createdAt: 'desc' } });
+    const result = await this.db.job.findMany({ where, orderBy: { createdAt: 'desc' } });
 
-    if (eq(data.length, MIN_VALUE)) return accepts(MESSAGE.JOB_NOT_FOUND);
+    if (eq(result.length, MIN_VALUE)) return accepts(MESSAGE.JOB_NOT_FOUND);
 
-    const filteredSalary = data.filter(({ salary }) => {
+    const data = result.filter(({ salary }) => {
       const [min, max] = salary;
 
       const hasMinMax = eq(salary.length, SALARY_RANGE);
@@ -35,6 +35,28 @@ export class CompanyService {
       return min;
     });
 
-    return accepts(MESSAGE.GETTED_JOBS, { data: filteredSalary, total: filteredSalary.length });
+    return accepts(MESSAGE.GETTED_JOBS, { data, total: data.length });
+  }
+
+  async getListApplied(company: string) {
+    const filter = { job: { company }, applicationStatus: ApplicationStatus.applied };
+
+    const [data, total] = await this.db.$transaction([
+      this.db.appliedJob.findMany({
+        where: filter,
+        select: {
+          id: true,
+          applicationDate: true,
+          applicationStatus: true,
+          user: {
+            select: { id: true, firstName: true, lastName: true, email: true, userProfile: true },
+          },
+          job: { select: { id: true, position: true, salary: true, style: true, category: true } },
+        },
+      }),
+      this.db.appliedJob.count({ where: filter }),
+    ]);
+
+    return accepts(MESSAGE.GETTED_APPLIED_JOBS, { data, total });
   }
 }
