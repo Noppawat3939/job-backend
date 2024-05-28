@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Req, SetMetadata, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Query, Req, SetMetadata, UseGuards } from '@nestjs/common';
 import { Role, User } from '@prisma/client';
 import { Request } from 'express';
 import { JwtAuthGuard, RolesGuard } from 'src/guards';
@@ -26,5 +26,14 @@ export class CompanyController {
     const user = req.user as User;
 
     return this.service.getListApplied(user.companyName);
+  }
+
+  @UseGuards(RolesGuard)
+  @SetMetadata('role', [Role.employer])
+  @Get('list/applied/:id')
+  getJobsAppliedById(@Req() req: Request, @Param() { id }: { id: string }) {
+    const user = req.user as User;
+
+    return this.service.getJobsAppliedById(user.companyName, +id);
   }
 }

@@ -8,6 +8,21 @@ import { QueryJobs } from 'src/types';
 const MIN_VALUE = 0;
 const SALARY_RANGE = 2;
 
+const selectedUser = { id: true, firstName: true, lastName: true, email: true, userProfile: true };
+const selectedJob = {
+  id: true,
+  position: true,
+  salary: true,
+  style: true,
+  category: true,
+  experienceLevel: true,
+  location: true,
+  jobDescriptions: true,
+  jobType: true,
+  qualifications: true,
+  urgent: true,
+};
+
 @Injectable()
 export class CompanyService {
   constructor(private readonly db: DbService) {}
@@ -48,11 +63,31 @@ export class CompanyService {
           id: true,
           applicationDate: true,
           applicationStatus: true,
-          user: {
-            select: { id: true, firstName: true, lastName: true, email: true, userProfile: true },
-          },
-          job: { select: { id: true, position: true, salary: true, style: true, category: true } },
+          user: { select: selectedUser },
+          job: { select: selectedJob },
         },
+        orderBy: { id: 'desc' },
+      }),
+      this.db.appliedJob.count({ where: filter }),
+    ]);
+
+    return accepts(MESSAGE.GETTED_APPLIED_JOBS, { data, total });
+  }
+
+  async getJobsAppliedById(company: string, id: number) {
+    const filter = { id, job: { company }, applicationStatus: ApplicationStatus.applied };
+
+    const [data, total] = await this.db.$transaction([
+      this.db.appliedJob.findMany({
+        where: filter,
+        select: {
+          id: true,
+          applicationDate: true,
+          applicationStatus: true,
+          user: { select: selectedUser },
+          job: { select: selectedJob },
+        },
+        orderBy: { id: 'desc' },
       }),
       this.db.appliedJob.count({ where: filter }),
     ]);
