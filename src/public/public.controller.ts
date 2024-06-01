@@ -24,6 +24,6 @@ export class PublicController {
 
   @Get('job/:id')
   getJob(@Param() { id }: { id: string }) {
-    return this.service.getJob(+id);
+    return this.service.getJobById(+id);
   }
 }
