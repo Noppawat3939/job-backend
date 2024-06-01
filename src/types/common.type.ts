@@ -59,3 +59,5 @@ export type GoogleUser = {
 };
 
 export type Transform<T, K extends { [k in keyof T]: unknown }> = Omit<T, keyof K> & K;
+
+export type KeysHeaders = { apiKey: string; token?: string };

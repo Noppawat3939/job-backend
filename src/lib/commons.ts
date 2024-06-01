@@ -70,3 +70,10 @@ export const pretty = (text: string) => text.replaceAll(' ', '_');
  * @returns "Hello world"
  */
 export const unPretty = (text: string) => text.replaceAll('_', ' ');
+
+/**
+ *
+ * @example uniqueList(["1","1","2","3","4"])
+ * @returns ["1","2","3","4"]
+ */
+export const uniqueList = <T extends string | number>(values: T[]) => [...new Set(values)];

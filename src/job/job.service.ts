@@ -2,17 +2,74 @@ import { Injectable } from '@nestjs/common';
 import { Role, User } from '@prisma/client';
 import { ACTIVE, MESSAGE } from 'src/constants';
 import { DbService } from 'src/db';
-import { accepts, checkLastUpdated, eq, exceptions, generateUpdateJob, transform } from 'src/lib';
+import {
+  accepts,
+  checkLastUpdated,
+  eq,
+  exceptions,
+  generateUpdateJob,
+  transform,
+  uniqueList,
+} from 'src/lib';
 import { CreateJobDto, UpdateJobDto } from 'src/schemas';
-import type { QueryApproveUsers as QueryApproveJobs } from 'src/types';
+import type { KeysHeaders, QueryApproveUsers as QueryApproveJobs } from 'src/types';
 
 @Injectable()
 export class JobService {
   constructor(private readonly db: DbService) {}
-  async getAll() {
-    const data = await this.db.job.findMany({ orderBy: { createdAt: 'desc' } });
+  async getAll(keysHeaders: KeysHeaders) {
+    const selected = {
+      id: true,
+      position: true,
+      salary: true,
+      location: true,
+      urgent: true,
+      style: true,
+      company: true,
+      updatedAt: true,
+      createdAt: true,
+      experienceLevel: true,
+    };
 
-    return accepts(MESSAGE.GETTED_JOBS, { data, total: data.length });
+    const [jobs, total] = await this.db.$transaction([
+      this.db.job.findMany({
+        orderBy: { createdAt: 'desc' },
+        ...(!keysHeaders.token && { select: selected }),
+      }),
+      this.db.job.count(),
+    ]);
+
+    const companies = uniqueList(jobs.map((job) => job.company));
+    const companyData: Pick<
+      User,
+      'id' | 'userProfile' | 'companyHistory' | 'companyName' | 'companyProfile'
+    >[] = [];
+
+    for (let i = 0; i < companies.length; i++) {
+      const companyName = companies[i];
+
+      const response = await this.db.user.findFirst({
+        where: { companyName },
+        select: {
+          id: true,
+          companyName: true,
+          userProfile: true,
+          companyProfile: true,
+          companyHistory: true,
+        },
+      });
+
+      companyData.push(response);
+    }
+
+    const data = jobs.map((row) => {
+      const company = companyData.find((item) => eq(item.companyName, row.company));
+      if (company) return { ...row, company };
+
+      return row;
+    });
+
+    return accepts(MESSAGE.GETTED_JOBS, { data, total });
   }
 
   async getById(id: number, userId: number) {

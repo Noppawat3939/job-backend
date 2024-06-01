@@ -15,14 +15,14 @@ import {
 import { JobService } from './job.service';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { CreateJobDto, UpdateJobDto, createJobSchema, updateJobSchema } from 'src/schemas';
-import { JwtAuthGuard, RolesGuard } from 'src/guards';
+import { JwtAuthGuard, PublicKeyGuard, RolesGuard } from 'src/guards';
 import { Role, User } from '@prisma/client';
 import { Request } from 'express';
 import { ACTIVE } from 'src/constants';
 import { ConfigService } from '@nestjs/config';
 import { HttpStatusCode } from 'axios';
+import { getKeysHeaders } from 'src/lib';
 
-@UseGuards(JwtAuthGuard)
 @Controller('job')
 export class JobController {
   constructor(
@@ -30,11 +30,15 @@ export class JobController {
     private readonly config: ConfigService,
   ) {}
 
+  @UseGuards(PublicKeyGuard)
   @Get('list')
-  getJobs() {
-    return this.service.getAll();
+  getJobs(@Req() req: Request) {
+    const keys = getKeysHeaders(req.headers);
+
+    return this.service.getAll(keys);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('list/:id')
   getJob(@Param() { id }: { id: string }, @Req() req: Request) {
     const user = req.user as User;
@@ -42,6 +46,7 @@ export class JobController {
     return this.service.getById(+id, user.id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @UseGuards(RolesGuard)
   @SetMetadata('role', [Role.employer])
   @Post('create')
@@ -55,6 +60,7 @@ export class JobController {
     return this.service.createJob(body, req.user, isAllowedCheckLastest);
   }
 
+  @UseGuards(JwtAuthGuard)
   @UseGuards(RolesGuard)
   @SetMetadata('role', [Role.employer])
   @Patch('update/:id')
@@ -69,6 +75,7 @@ export class JobController {
     return this.service.updateJob(id, body, isAllowedCheckLastest);
   }
 
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatusCode.Ok)
   @UseGuards(RolesGuard)
   @SetMetadata('role', [Role.super_admin, Role.admin])
@@ -77,6 +84,7 @@ export class JobController {
     return this.service.approveOrRejectJob(+id, ACTIVE.APPROVED);
   }
 
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatusCode.Ok)
   @UseGuards(RolesGuard)
   @SetMetadata('role', [Role.super_admin])
@@ -85,6 +93,7 @@ export class JobController {
     return this.service.approveOrRejectJob(+id, ACTIVE.REJECTED);
   }
 
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatusCode.Ok)
   @UseGuards(RolesGuard)
   @SetMetadata('role', [Role.super_admin])
@@ -93,6 +102,7 @@ export class JobController {
     return this.service.approveOrRejectJob(+id, ACTIVE.UN_APPROVE);
   }
 
+  @UseGuards(JwtAuthGuard)
   @UseGuards(RolesGuard)
   @SetMetadata('role', [Role.employer, Role.super_admin])
   @Delete(':id')

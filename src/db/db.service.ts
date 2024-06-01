@@ -9,9 +9,9 @@ export class DbService extends PrismaClient implements OnModuleInit {
     try {
       await this.$connect();
 
-      console.log(`Connnected database on ${DB_RUN}`);
+      console.log(`✅ Connnected database on ${DB_RUN}`);
     } catch (error) {
-      console.log('Connect database failed');
+      console.log(`❌ Failed connect database on ${DB_RUN}`);
     }
   }
 }

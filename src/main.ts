@@ -9,7 +9,7 @@ async function bootstrap() {
   app.enableCors({ origin: '*' });
 
   await app.listen(PORT, () => {
-    console.log('✅ Started server');
+    console.log(`🟢 Started server port: ${PORT}`);
   });
 }
 bootstrap();
