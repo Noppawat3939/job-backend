@@ -6,14 +6,12 @@ import { CACHE_KEY, MESSAGE } from 'src/constants';
 import { DbService } from 'src/db';
 import { accepts, eq, exceptions } from 'src/lib';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UserJobService {
   constructor(
     @Inject(CACHE_MANAGER) private readonly cache: Cache,
     private readonly db: DbService,
-    private readonly config: ConfigService,
   ) {}
 
   async getAppliedJobs(userId: number) {
