@@ -64,7 +64,7 @@ export class CompanyService {
           applicationDate: true,
           applicationStatus: true,
           user: { select: selectedUser },
-          job: { select: selectedJob },
+          job: { select: { id: true, position: true, experienceLevel: true } },
         },
         orderBy: { id: 'desc' },
       }),
@@ -74,24 +74,25 @@ export class CompanyService {
     return accepts(MESSAGE.GETTED_APPLIED_JOBS, { data, total });
   }
 
-  async getJobsAppliedById(company: string, id: number) {
-    const filter = { id, job: { company }, applicationStatus: ApplicationStatus.applied };
+  async getJobsAppliedById(company: string, appliedId: number) {
+    const filter = {
+      id: appliedId,
+      job: { company },
+      applicationStatus: ApplicationStatus.applied,
+    };
 
-    const [data, total] = await this.db.$transaction([
-      this.db.appliedJob.findMany({
-        where: filter,
-        select: {
-          id: true,
-          applicationDate: true,
-          applicationStatus: true,
-          user: { select: selectedUser },
-          job: { select: selectedJob },
-        },
-        orderBy: { id: 'desc' },
-      }),
-      this.db.appliedJob.count({ where: filter }),
-    ]);
+    const data = await this.db.appliedJob.findFirst({
+      where: filter,
+      select: {
+        id: true,
+        applicationDate: true,
+        applicationStatus: true,
+        user: { select: selectedUser },
+        job: { select: selectedJob },
+      },
+      orderBy: { id: 'desc' },
+    });
 
-    return accepts(MESSAGE.GETTED_APPLIED_JOBS, { data, total });
+    return accepts(MESSAGE.GETTED_APPLIED_JOBS, { data });
   }
 }
