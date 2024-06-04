@@ -1,5 +1,7 @@
 import {
+  Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   Param,
@@ -8,7 +10,7 @@ import {
   SetMetadata,
   UseGuards,
 } from '@nestjs/common';
-import { Role, User } from '@prisma/client';
+import { ApplicationStatus, Role, User } from '@prisma/client';
 import { JwtAuthGuard, RolesGuard } from 'src/guards';
 import { UserJobService } from './user-job.service';
 import { Request } from 'express';
@@ -67,9 +69,27 @@ export class UserJobController {
   }
 
   @UseGuards(RolesGuard)
-  @SetMetadata('role', [Role.admin])
-  @Post('/update/:id')
-  updateStatus(@Param() { id }: { id: string }) {
-    return this.service.updateStatusApplication(+id);
+  @SetMetadata('role', [Role.employer])
+  @Post('/application/update/:id')
+  updateStatus(
+    @Req() req: Request,
+    @Body() body: { status: ApplicationStatus },
+    @Param() { id }: { id: string },
+  ) {
+    const user = req.user as User;
+
+    return this.service.updateStatusApplication(+id, {
+      company: user.companyName,
+      status: body.status,
+    });
+  }
+
+  @UseGuards(RolesGuard)
+  @SetMetadata('role', [Role.user])
+  @Delete('/application/:id')
+  userDeleteApplication(@Req() req: Request, @Param() { id }: { id: string }) {
+    const user = req.user as User;
+
+    return this.service.deleteApplication(+id, user.id);
   }
 }

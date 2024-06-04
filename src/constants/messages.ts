@@ -33,6 +33,8 @@ export const MESSAGE = {
   APPLIED_JOB: 'Applied job is successfully',
   CANCELLED_APPLICATION_JOB: 'Cancelled application is successfully',
   APPLIED_JOB_STATUS_NOT_ACCEPT: 'Application status is not accept',
+  APPLIED_JOB_STATUS_INVALID: 'Application status is invalid',
+  APPLICATION_DELETED: 'Application deleted is successfully',
   UPDATED_STATUS_APPLICATION_JOB: 'Updated status application is successfully',
   ADDED_FAVORITE_JOB: 'Added favorite job is successfully',
   REMOVED_FAVORITE_JOB: 'Removed favorite job is successfully',

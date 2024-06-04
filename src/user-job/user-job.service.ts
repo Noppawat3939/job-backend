@@ -106,35 +106,54 @@ export class UserJobService {
     return accepts(MESSAGE.CANCELLED_APPLICATION_JOB, { data: response });
   }
 
-  async updateStatusApplication(id: number) {
+  async updateStatusApplication(
+    id: number,
+    { status, company }: { company: string; status: ApplicationStatus },
+  ) {
     const application = await this.db.appliedJob
-      .findFirstOrThrow({ where: { id } })
+      .findFirstOrThrow({ where: { id, job: { company } } })
       .catch(() => exceptions.notFound(MESSAGE.JOB_NOT_FOUND));
 
-    const mappingUpdateStatus = {
-      applied: ApplicationStatus.interviewing,
-      interviewing: ApplicationStatus.offering,
-      offering: ApplicationStatus.offered,
-    } as Record<keyof typeof ApplicationStatus, keyof typeof ApplicationStatus>;
+    const allowedStatus = {
+      [ApplicationStatus.applied]: [ApplicationStatus.reviewing, ApplicationStatus.rejected],
+      [ApplicationStatus.reviewing]: [
+        ApplicationStatus.interviewing,
+        ApplicationStatus.offering,
+        ApplicationStatus.offered,
+        ApplicationStatus.rejected,
+      ],
+      [ApplicationStatus.interviewing]: [
+        ApplicationStatus.offering,
+        ApplicationStatus.offered,
+        ApplicationStatus.rejected,
+      ],
+      [ApplicationStatus.offering]: [ApplicationStatus.offered, ApplicationStatus.rejected],
+      [ApplicationStatus.rejected]: [ApplicationStatus.rejected],
+    } as Record<keyof typeof ApplicationStatus, (keyof typeof ApplicationStatus)[]>;
 
-    if (!Object.keys(mappingUpdateStatus).includes(application.applicationStatus))
-      return exceptions.unProcessable(MESSAGE.APPLIED_JOB_STATUS_NOT_ACCEPT);
+    const statusNotAllowed = !allowedStatus[application.applicationStatus].includes(status);
+
+    if (statusNotAllowed) return exceptions.unProcessable(MESSAGE.APPLIED_JOB_STATUS_NOT_ACCEPT);
+
+    if (!Object.keys(ApplicationStatus).includes(status))
+      return exceptions.unProcessable(MESSAGE.APPLIED_JOB_STATUS_INVALID);
 
     const filter = { id: application.id };
 
-    const isRejected = eq(
-      mappingUpdateStatus[application.applicationStatus],
-      ApplicationStatus.rejected,
-    );
+    if (
+      eq(status, ApplicationStatus.rejected) &&
+      eq(application.applicationStatus, ApplicationStatus.rejected)
+    )
+      return accepts(MESSAGE.UPDATED_STATUS_APPLICATION_JOB, { data: application });
 
     const updatedData = {
-      applicationStatus: mappingUpdateStatus[application.applicationStatus],
-      ...(isRejected && { rejectedDate: dayjs().toISOString() }),
+      applicationStatus: status,
+      ...(eq(status, ApplicationStatus.rejected) && { rejectedDate: dayjs().toISOString() }),
     };
 
-    const response = await this.db.appliedJob.update({ where: filter, data: updatedData });
+    const data = await this.db.appliedJob.update({ where: filter, data: updatedData });
 
-    return accepts(MESSAGE.UPDATED_STATUS_APPLICATION_JOB, { data: response });
+    return accepts(MESSAGE.UPDATED_STATUS_APPLICATION_JOB, { data });
   }
 
   async favoriteJob(jobId: number, userId: number) {
@@ -196,5 +215,22 @@ export class UserJobService {
     );
 
     return accepts(MESSAGE.GETTED_FAVORITED_JOBS, { data: response, total: response.length });
+  }
+  async deleteApplication(id: number, userId: number) {
+    const application = await this.db.appliedJob
+      .findFirstOrThrow({ where: { id, userId }, select: { id: true, applicationStatus: true } })
+      .catch(() => exceptions.notFound(MESSAGE.JOB_NOT_FOUND));
+
+    const allowedStatus = [
+      ApplicationStatus.applied,
+      ApplicationStatus.cancelled,
+    ] as (keyof typeof ApplicationStatus)[];
+
+    if (!allowedStatus.includes(application.applicationStatus))
+      return exceptions.unProcessable(MESSAGE.APPLIED_JOB_STATUS_NOT_ACCEPT);
+
+    await this.db.appliedJob.delete({ where: { id } });
+
+    return accepts(MESSAGE.APPLICATION_DELETED);
   }
 }
