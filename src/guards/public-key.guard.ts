@@ -19,8 +19,8 @@ export class PublicKeyGuard implements CanActivate {
 
     const isAllowed = orHas([allowedUserAgent, eq(apiKey, this.config.get('PUBLIC_API_KEY'))]);
 
-    if (isAllowed) return true;
+    if (!isAllowed) return exceptions.fobbiden(MESSAGE.PUBLIC_KEY_NOT_FOUND);
 
-    return exceptions.fobbiden(MESSAGE.PUBLIC_KEY_NOT_FOUND);
+    return isAllowed;
   }
 }
