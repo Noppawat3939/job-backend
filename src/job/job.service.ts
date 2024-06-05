@@ -77,7 +77,10 @@ export class JobService {
       .findFirstOrThrow({ where: { id } })
       .catch(() => exceptions.notFound(MESSAGE.JOB_NOT_FOUND));
 
-    const appliedJob = await this.db.appliedJob.findFirst({ where: { jobId: job.id, userId } });
+    const appliedJob = await this.db.appliedJob.findFirst({
+      where: { jobId: job.id, userId },
+      take: -1,
+    });
     const favoritedJob = await this.db.favoriteJob.findFirst({ where: { jobId: job.id, userId } });
 
     const data = {

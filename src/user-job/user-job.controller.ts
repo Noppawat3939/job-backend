@@ -42,6 +42,7 @@ export class UserJobController {
 
   @UseGuards(RolesGuard)
   @SetMetadata('role', [Role.user])
+  @HttpCode(HttpStatusCode.Ok)
   @Post('/cancel/:id')
   cancelJob(@Param() { id }: { id: string }, @Req() req: Request) {
     const user = req.user as User;

@@ -57,12 +57,17 @@ export class UserJobService {
       .findFirstOrThrow({ where: { id: jobId } })
       .catch(() => exceptions.notFound(MESSAGE.JOB_NOT_FOUND));
 
-    const applicationRejected = await this.db.appliedJob.findFirst({
-      where: { jobId: job.id, applicationStatus: { not: ApplicationStatus.rejected } },
+    const application = await this.db.appliedJob.findMany({
+      where: { jobId: job.id },
       orderBy: { applicationDate: 'desc' },
+      take: -1,
     });
 
-    if (applicationRejected) return exceptions.unProcessable(MESSAGE.APPLIED_JOB_STATUS_NOT_ACCEPT);
+    if (application.length && application[0].applicationStatus === ApplicationStatus.cancelled) {
+      const id = application[0].id;
+
+      await this.db.appliedJob.delete({ where: { id } });
+    }
 
     const createdData = {
       jobId: job.id,
@@ -78,9 +83,9 @@ export class UserJobService {
     return accepts(MESSAGE.APPLIED_JOB, { data: response });
   }
 
-  async cancelJob(jobId: number, userId: number) {
+  async cancelJob(applicationId: number, userId: number) {
     const appliedJob = await this.db.appliedJob
-      .findFirstOrThrow({ where: { jobId, userId } })
+      .findFirstOrThrow({ where: { id: applicationId, userId } })
       .catch(() => exceptions.notFound(MESSAGE.JOB_NOT_FOUND));
 
     if (
