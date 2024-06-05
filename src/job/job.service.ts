@@ -69,13 +69,13 @@ export class JobService {
       return row;
     });
 
-    return accepts(MESSAGE.GETTED_JOBS, { data, total });
+    return accepts(MESSAGE.GET_SUCCESS, { data, total });
   }
 
   async getById(id: number, userId: number) {
     const job = await this.db.job
       .findFirstOrThrow({ where: { id } })
-      .catch(() => exceptions.notFound(MESSAGE.JOB_NOT_FOUND));
+      .catch(() => exceptions.notFound(MESSAGE.NOT_FOUND));
 
     const appliedJob = await this.db.appliedJob.findFirst({
       where: { jobId: job.id, userId },
@@ -89,7 +89,7 @@ export class JobService {
       ...(favoritedJob && { favoritedJob: true }),
     };
 
-    return accepts(MESSAGE.GETTED_JOBS, { data });
+    return accepts(MESSAGE.GET_SUCCESS, { data });
   }
 
   async createJob(dto: CreateJobDto, user: User, isAllowedCheckLastest?: boolean) {
@@ -129,13 +129,13 @@ export class JobService {
       data: created,
     });
 
-    return accepts(MESSAGE.JOB_CREATED, { data });
+    return accepts(MESSAGE.CREATE_SUCCESS, { data });
   }
 
   async updateJob(id: number, dto: UpdateJobDto, isAllowedCheckLastest?: boolean) {
     const job = await this.db.job
       .findFirstOrThrow({ where: { id } })
-      .catch(() => exceptions.notFound(MESSAGE.JOB_NOT_FOUND));
+      .catch(() => exceptions.notFound(MESSAGE.NOT_FOUND));
 
     if (!job.active && !isAllowedCheckLastest) {
       checkLastUpdated(-10, job.updatedAt);
@@ -148,13 +148,13 @@ export class JobService {
 
     const data = await this.db.job.update({ where: { id }, data: updated });
 
-    return accepts(MESSAGE.JOB_INFO_UPDATED, { data });
+    return accepts(MESSAGE.UPDATE_SUCCESS, { data });
   }
 
   async approveOrRejectJob(id: number, action: QueryApproveJobs) {
     const job = await this.db.job
       .findFirstOrThrow({ where: { id } })
-      .catch(() => exceptions.notFound(MESSAGE.JOB_NOT_FOUND));
+      .catch(() => exceptions.notFound(MESSAGE.NOT_FOUND));
 
     const isApproved = eq(action, ACTIVE.APPROVED);
     const isResetActive = eq(action, ACTIVE.UN_APPROVE);
@@ -166,32 +166,26 @@ export class JobService {
       data: { active: isResetActive ? null : isApproved },
     });
 
-    return accepts(
-      isResetActive
-        ? MESSAGE.RESETED_ACTIVE
-        : isApproved
-          ? MESSAGE.JOB_APPROVED
-          : MESSAGE.JOB_REJECTED,
-    );
+    return accepts(MESSAGE.UPDATE_SUCCESS);
   }
 
   async deleteJob(id: number, user: User) {
     const job = await this.db.job
       .findFirstOrThrow({ where: { id } })
-      .catch(() => exceptions.notFound(MESSAGE.JOB_NOT_FOUND));
+      .catch(() => exceptions.notFound(MESSAGE.NOT_FOUND));
 
     if (eq(user.role, Role.employer)) {
       if (eq(job.active, null)) {
         await this.db.job.delete({ where: { id } });
 
-        return accepts(MESSAGE.JOB_DELETED);
+        return accepts(MESSAGE.DELETE_SUCCESS);
       } else {
-        return exceptions.badRequest("Can't delete approved job");
+        return exceptions.badRequest(MESSAGE.DELETE_FAILED);
       }
     }
 
     await this.db.job.delete({ where: { id } });
 
-    return accepts(MESSAGE.JOB_DELETED);
+    return accepts(MESSAGE.DELETE_SUCCESS);
   }
 }

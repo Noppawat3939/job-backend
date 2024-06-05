@@ -22,7 +22,7 @@ export class PublicService {
   getAllIndustries() {
     const sortedIndustries = industries.sort((a, b) => a.id - b.id);
 
-    return accepts(MESSAGE.GETTED_INDUSTRIES, {
+    return accepts(MESSAGE.GET_SUCCESS, {
       data: sortedIndustries,
       total: sortedIndustries.length,
     });
@@ -38,7 +38,7 @@ export class PublicService {
       code: pretty(province.name_en).toUpperCase(),
     }));
 
-    return accepts(MESSAGE.GETTED_PROVINCES, {
+    return accepts(MESSAGE.GET_SUCCESS, {
       data: mappedProvince,
       total: mappedProvince.length,
     });
@@ -47,17 +47,17 @@ export class PublicService {
   async getJobById(id: number) {
     const data = await this.db.job
       .findFirstOrThrow({ where: { id } })
-      .catch(() => exceptions.notFound(MESSAGE.JOB_NOT_FOUND));
+      .catch(() => exceptions.notFound(MESSAGE.NOT_FOUND));
 
     await this.cache.set(CACHE_KEY.PUBLIC_JOB, JSON.stringify([data]));
 
-    return accepts(MESSAGE.GETTED_JOBS, { data });
+    return accepts(MESSAGE.GET_SUCCESS, { data });
   }
 
   getJobCateories() {
     const categories = jobCategories;
 
-    return accepts(MESSAGE.GETTED_JOB_CATEGORIES, {
+    return accepts(MESSAGE.GET_SUCCESS, {
       data: categories,
       total: categories.length,
     });

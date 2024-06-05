@@ -24,20 +24,20 @@ export class UserService {
 
     const excluded = exclude(users, ['password', 'updatedAt']);
 
-    return accepts(MESSAGE.GETTED_USERS, {
+    return accepts(MESSAGE.GET_SUCCESS, {
       data: excluded,
       total: excluded.length,
     });
   }
 
   getMe(user: User) {
-    return accepts(MESSAGE.GETTED_USERS, { data: user });
+    return accepts(MESSAGE.GET_SUCCESS, { data: user });
   }
 
   async approveOrRejectUser(id: number, action: QueryApproveUsers) {
     const user = await this.db.user
       .findFirstOrThrow({ where: { id } })
-      .catch(() => exceptions.notFound(MESSAGE.USER_NOT_FOUND));
+      .catch(() => exceptions.notFound(MESSAGE.NOT_FOUND));
 
     const isApproved = eq(action, ACTIVE.APPROVED);
     const isResetActive = eq(action, ACTIVE.UN_APPROVE);
@@ -49,23 +49,17 @@ export class UserService {
       data: { active: isResetActive ? null : isApproved },
     });
 
-    return accepts(
-      isResetActive
-        ? MESSAGE.RESETED_ACTIVE
-        : isApproved
-          ? MESSAGE.USER_APPROVED
-          : MESSAGE.USER_REJECTED,
-    );
+    return accepts(MESSAGE.UPDATE_SUCCESS);
   }
 
   async deleteUser(id: number) {
     await this.db.user
       .findFirstOrThrow({ where: { id } })
-      .catch(() => exceptions.notFound(MESSAGE.USER_NOT_FOUND));
+      .catch(() => exceptions.notFound(MESSAGE.NOT_FOUND));
 
     await this.db.user.delete({ where: { id } });
 
-    return accepts(MESSAGE.USER_DELETED);
+    return accepts(MESSAGE.DELETE_SUCCESS);
   }
 
   async updateEmail(id: number, dto: UpdateEmailDto) {
@@ -76,13 +70,13 @@ export class UserService {
 
     const matched = await compareHash(dto.password, user.password);
 
-    if (!matched) return exceptions.badRequest(MESSAGE.PASSWORD_INVALID);
+    if (!matched) return exceptions.badRequest(MESSAGE.INVALID);
 
     checkLastUpdated(-30, user.updatedAt);
 
     await this.db.user.update({ where: { id: user.id }, data: { email: dto.email } });
 
-    return accepts(MESSAGE.EMAIL_UPDATED);
+    return accepts(MESSAGE.UPDATE_SUCCESS);
   }
 
   async updateCompanyInfo(user: User, dto: UpdateCompanyInfoDto) {
@@ -95,7 +89,7 @@ export class UserService {
 
     await this.db.user.update({ where: { id: user.id }, data: update });
 
-    return accepts(MESSAGE.COMPANY_INFO_UPDATED);
+    return accepts(MESSAGE.UPDATE_SUCCESS);
   }
 
   async updateUserInfo(user: User, dto: UpdateUserInfoDto & UpdateCompanyInfoDto) {
@@ -122,6 +116,6 @@ export class UserService {
 
     await this.db.user.update({ where: { id: user.id }, data });
 
-    return accepts(MESSAGE.USER_INFO_UPDATED);
+    return accepts(MESSAGE.UPDATE_SUCCESS);
   }
 }

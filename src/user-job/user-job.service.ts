@@ -17,7 +17,7 @@ export class UserJobService {
   async getAppliedJobs(userId: number) {
     const cached = await this.cache.get<string>(CACHE_KEY.APPLIED_JOBS);
 
-    if (cached) return accepts(MESSAGE.GETTED_APPLIED_JOBS, JSON.parse(cached));
+    if (cached) return accepts(MESSAGE.GET_SUCCESS, JSON.parse(cached));
 
     const selected = {
       id: true,
@@ -49,13 +49,13 @@ export class UserJobService {
 
     await this.cache.set(CACHE_KEY.APPLIED_JOBS, JSON.stringify(response));
 
-    return accepts(MESSAGE.GETTED_APPLIED_JOBS, response);
+    return accepts(MESSAGE.GET_SUCCESS, response);
   }
 
   async applyJob(jobId: number, userId: number) {
     const job = await this.db.job
       .findFirstOrThrow({ where: { id: jobId } })
-      .catch(() => exceptions.notFound(MESSAGE.JOB_NOT_FOUND));
+      .catch(() => exceptions.notFound(MESSAGE.NOT_FOUND));
 
     const application = await this.db.appliedJob.findMany({
       where: { jobId: job.id },
@@ -80,20 +80,20 @@ export class UserJobService {
 
     const response = await this.db.appliedJob.create({ data: createdData });
 
-    return accepts(MESSAGE.APPLIED_JOB, { data: response });
+    return accepts(MESSAGE.CREATE_SUCCESS, { data: response });
   }
 
   async cancelJob(applicationId: number, userId: number) {
     const appliedJob = await this.db.appliedJob
       .findFirstOrThrow({ where: { id: applicationId, userId } })
-      .catch(() => exceptions.notFound(MESSAGE.JOB_NOT_FOUND));
+      .catch(() => exceptions.notFound(MESSAGE.NOT_FOUND));
 
     if (
       ![String(ApplicationStatus.cancelled), ApplicationStatus.applied].includes(
         appliedJob.applicationStatus,
       )
     )
-      return exceptions.unProcessable(MESSAGE.APPLIED_JOB_STATUS_NOT_ACCEPT);
+      return exceptions.unProcessable(MESSAGE.NOT_ACCEPT);
 
     const filter = { id: appliedJob.id };
     const updatedData = {
@@ -108,7 +108,7 @@ export class UserJobService {
       data: updatedData,
     });
 
-    return accepts(MESSAGE.CANCELLED_APPLICATION_JOB, { data: response });
+    return accepts(MESSAGE.UPDATE_SUCCESS, { data: response });
   }
 
   async updateStatusApplication(
@@ -117,7 +117,7 @@ export class UserJobService {
   ) {
     const application = await this.db.appliedJob
       .findFirstOrThrow({ where: { id, job: { company } } })
-      .catch(() => exceptions.notFound(MESSAGE.JOB_NOT_FOUND));
+      .catch(() => exceptions.notFound(MESSAGE.NOT_FOUND));
 
     const allowedStatus = {
       [ApplicationStatus.applied]: [ApplicationStatus.reviewing, ApplicationStatus.rejected],
@@ -138,10 +138,10 @@ export class UserJobService {
 
     const statusNotAllowed = !allowedStatus[application.applicationStatus].includes(status);
 
-    if (statusNotAllowed) return exceptions.unProcessable(MESSAGE.APPLIED_JOB_STATUS_NOT_ACCEPT);
+    if (statusNotAllowed) return exceptions.unProcessable(MESSAGE.NOT_ACCEPT);
 
     if (!Object.keys(ApplicationStatus).includes(status))
-      return exceptions.unProcessable(MESSAGE.APPLIED_JOB_STATUS_INVALID);
+      return exceptions.unProcessable(MESSAGE.NOT_ACCEPT);
 
     const filter = { id: application.id };
 
@@ -149,7 +149,7 @@ export class UserJobService {
       eq(status, ApplicationStatus.rejected) &&
       eq(application.applicationStatus, ApplicationStatus.rejected)
     )
-      return accepts(MESSAGE.UPDATED_STATUS_APPLICATION_JOB, { data: application });
+      return accepts(MESSAGE.UPDATE_SUCCESS, { data: application });
 
     const updatedData = {
       applicationStatus: status,
@@ -158,13 +158,13 @@ export class UserJobService {
 
     const data = await this.db.appliedJob.update({ where: filter, data: updatedData });
 
-    return accepts(MESSAGE.UPDATED_STATUS_APPLICATION_JOB, { data });
+    return accepts(MESSAGE.UPDATE_SUCCESS, { data });
   }
 
   async favoriteJob(jobId: number, userId: number) {
     await this.db.job
       .findFirstOrThrow({ where: { id: jobId } })
-      .catch(() => exceptions.notFound(MESSAGE.JOB_NOT_FOUND));
+      .catch(() => exceptions.notFound(MESSAGE.NOT_FOUND));
 
     const favorited = await this.db.favoriteJob.findFirst({
       where: { userId, jobId },
@@ -178,7 +178,7 @@ export class UserJobService {
 
       await this.cache.del(CACHE_KEY.FAVORITED_JOBS);
 
-      return accepts(MESSAGE.REMOVED_FAVORITE_JOB, { data: deleted });
+      return accepts(MESSAGE.DELETE_SUCCESS, { data: deleted });
     }
 
     const data = await this.db.favoriteJob.create({
@@ -186,14 +186,14 @@ export class UserJobService {
     });
 
     await this.cache.del(CACHE_KEY.FAVORITED_JOBS);
-    return accepts(MESSAGE.ADDED_FAVORITE_JOB, { data });
+    return accepts(MESSAGE.CREATE_SUCCESS, { data });
   }
 
   async getFavoriteJobs(userId: number) {
     const cached = await this.cache.get<string>(CACHE_KEY.FAVORITED_JOBS);
 
     if (cached) {
-      return accepts(MESSAGE.GETTED_FAVORITED_JOBS, JSON.parse(cached));
+      return accepts(MESSAGE.GET_SUCCESS, JSON.parse(cached));
     }
 
     const data = await this.db.favoriteJob.findMany({
@@ -219,12 +219,12 @@ export class UserJobService {
       JSON.stringify({ data: response, total: response.length }),
     );
 
-    return accepts(MESSAGE.GETTED_FAVORITED_JOBS, { data: response, total: response.length });
+    return accepts(MESSAGE.GET_SUCCESS, { data: response, total: response.length });
   }
   async deleteApplication(id: number, userId: number) {
     const application = await this.db.appliedJob
       .findFirstOrThrow({ where: { id, userId }, select: { id: true, applicationStatus: true } })
-      .catch(() => exceptions.notFound(MESSAGE.JOB_NOT_FOUND));
+      .catch(() => exceptions.notFound(MESSAGE.NOT_FOUND));
 
     const allowedStatus = [
       ApplicationStatus.applied,
@@ -232,10 +232,10 @@ export class UserJobService {
     ] as (keyof typeof ApplicationStatus)[];
 
     if (!allowedStatus.includes(application.applicationStatus))
-      return exceptions.unProcessable(MESSAGE.APPLIED_JOB_STATUS_NOT_ACCEPT);
+      return exceptions.unProcessable(MESSAGE.NOT_ACCEPT);
 
     await this.db.appliedJob.delete({ where: { id } });
 
-    return accepts(MESSAGE.APPLICATION_DELETED);
+    return accepts(MESSAGE.DELETE_SUCCESS);
   }
 }

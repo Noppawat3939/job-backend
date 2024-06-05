@@ -44,7 +44,7 @@ export class AuthService {
       },
     });
 
-    return accepts(MESSAGE.USER_CREATED);
+    return accepts(MESSAGE.CREATE_SUCCESS);
   }
 
   async signupCompany(dto: SignupCompanyDto) {
@@ -66,7 +66,7 @@ export class AuthService {
       },
     });
 
-    return accepts(MESSAGE.USER_CREATED);
+    return accepts(MESSAGE.CREATE_SUCCESS);
   }
 
   async signin(dto: SigninDto, isCompany?: boolean) {
@@ -77,7 +77,7 @@ export class AuthService {
         .findFirstOrThrow({
           where: { email: dto.email, role: Role.employer },
         })
-        .catch(() => exceptions.notFound(MESSAGE.USER_NOT_FOUND));
+        .catch(() => exceptions.notFound(MESSAGE.NOT_FOUND));
 
       user = company;
     } else {
@@ -88,22 +88,22 @@ export class AuthService {
             NOT: { role: Role.employer },
           },
         })
-        .catch(() => exceptions.notFound(MESSAGE.USER_NOT_FOUND));
+        .catch(() => exceptions.notFound(MESSAGE.NOT_FOUND));
 
       user = notCompanyUser;
     }
 
-    if (!user.active) return exceptions.fobbiden(MESSAGE.USER_NOT_ACTIVE);
+    if (!user.active) return exceptions.fobbiden(MESSAGE.NOT_ACCEPT);
 
     const matched = await compareHash(dto.password, user.password);
 
-    if (!matched) return exceptions.badRequest(MESSAGE.PASSWORD_INVALID);
+    if (!matched) return exceptions.badRequest(MESSAGE.INVALID);
 
     const payload = { id: user.id, email: user.email, role: user.role };
 
     const token = await this.jwt.signAsync(payload);
 
-    return accepts(MESSAGE.USER_LOGINED, { data: token });
+    return accepts(null, { data: token });
   }
 
   async forgotPassword(dto: ForgotPasswordUserWithAdminDto & ForgotPasswordCompanyDto) {
@@ -114,13 +114,13 @@ export class AuthService {
         .findFirstOrThrow({
           where: { role: Role.employer, companyName: dto.companyName, email: dto.email },
         })
-        .catch(() => exceptions.notFound(MESSAGE.USER_NOT_FOUND));
+        .catch(() => exceptions.notFound(MESSAGE.NOT_FOUND));
 
       user = company;
     } else {
       const userWithAdmin = await this.db.user
         .findFirstOrThrow({ where: { email: dto.email, NOT: { role: Role.employer } } })
-        .catch(() => exceptions.notFound(MESSAGE.USER_NOT_FOUND));
+        .catch(() => exceptions.notFound(MESSAGE.NOT_FOUND));
 
       user = userWithAdmin;
     }
@@ -133,7 +133,7 @@ export class AuthService {
 
     await this.db.user.update({ where: { id: user.id }, data: { password } });
 
-    return accepts(MESSAGE.USER_FORGET_PASSWORD);
+    return accepts(MESSAGE.UPDATE_SUCCESS);
   }
 
   async getSocialSigninUrl(provider: string, callbackUrl: string) {

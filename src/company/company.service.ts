@@ -37,7 +37,7 @@ export class CompanyService {
 
     const result = await this.db.job.findMany({ where, orderBy: { createdAt: 'desc' } });
 
-    if (eq(result.length, MIN_VALUE)) return accepts(MESSAGE.JOB_NOT_FOUND);
+    if (eq(result.length, MIN_VALUE)) return accepts(MESSAGE.NOT_FOUND);
 
     const data = result.filter(({ salary }) => {
       const [min, max] = salary;
@@ -50,7 +50,7 @@ export class CompanyService {
       return min;
     });
 
-    return accepts(MESSAGE.GETTED_JOBS, { data, total: data.length });
+    return accepts(MESSAGE.GET_SUCCESS, { data, total: data.length });
   }
 
   async getListApplied(company: string) {
@@ -71,7 +71,7 @@ export class CompanyService {
       this.db.appliedJob.count({ where: filter }),
     ]);
 
-    return accepts(MESSAGE.GETTED_APPLIED_JOBS, { data, total });
+    return accepts(MESSAGE.GET_SUCCESS, { data, total });
   }
 
   async getJobsAppliedById(company: string, appliedId: number) {
@@ -93,6 +93,6 @@ export class CompanyService {
       orderBy: { id: 'desc' },
     });
 
-    return accepts(MESSAGE.GETTED_APPLIED_JOBS, { data });
+    return accepts(MESSAGE.GET_SUCCESS, { data });
   }
 }
