@@ -78,7 +78,6 @@ export class CompanyService {
     const filter = {
       id: appliedId,
       job: { company },
-      applicationStatus: ApplicationStatus.applied,
     };
 
     const data = await this.db.appliedJob.findFirst({
@@ -87,6 +86,7 @@ export class CompanyService {
         id: true,
         applicationDate: true,
         applicationStatus: true,
+        rejectedDate: true,
         user: { select: selectedUser },
         job: { select: selectedJob },
       },
