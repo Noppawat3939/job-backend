@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { type Cache } from 'cache-manager';
 import { Inject, Injectable } from '@nestjs/common';
-import { ApplicationStatus, FavoriteJob, Job } from '@prisma/client';
+import { ApplicationStatus, FavoriteJob, Job, Prisma } from '@prisma/client';
 import { CACHE_KEY, MESSAGE } from 'src/constants';
 import { DbService } from 'src/db';
 import { accepts, eq, exceptions } from 'src/lib';
@@ -25,7 +25,7 @@ export class UserJobService {
       applicationStatus: true,
       applicationDate: true,
       cancelledDate: true,
-    };
+    } as Prisma.AppliedJobSelect;
 
     const filter = {
       userId,
@@ -99,7 +99,7 @@ export class UserJobService {
     const updatedData = {
       applicationStatus: ApplicationStatus.cancelled,
       cancelledDate: dayjs().toISOString(),
-    };
+    } as Prisma.AppliedJobUpdateInput;
 
     await this.cache.del(CACHE_KEY.APPLIED_JOBS);
 
@@ -154,7 +154,8 @@ export class UserJobService {
     const updatedData = {
       applicationStatus: status,
       ...(eq(status, ApplicationStatus.rejected) && { rejectedDate: dayjs().toISOString() }),
-    };
+      ...(eq(status, ApplicationStatus.offered) && { offeredDate: dayjs().toISOString() }),
+    } as Prisma.AppliedJobUpdateInput;
 
     const data = await this.db.appliedJob.update({ where: filter, data: updatedData });
 

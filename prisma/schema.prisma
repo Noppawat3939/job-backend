@@ -70,6 +70,7 @@ model AppliedJob {
 
   applicationDate   DateTime?
   cancelledDate     DateTime?
+  offeredDate       DateTime?
   rejectedDate      DateTime?
   applicationStatus ApplicationStatus?
 }

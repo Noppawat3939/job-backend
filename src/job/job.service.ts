@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Role, User } from '@prisma/client';
+import { Prisma, Role, User } from '@prisma/client';
 import { ACTIVE, MESSAGE } from 'src/constants';
 import { DbService } from 'src/db';
 import {
@@ -29,7 +29,7 @@ export class JobService {
       updatedAt: true,
       createdAt: true,
       experienceLevel: true,
-    };
+    } as Prisma.JobSelect;
 
     const [jobs, total] = await this.db.$transaction([
       this.db.job.findMany({
@@ -123,7 +123,7 @@ export class JobService {
       jobType: dto.jobType,
       experienceLevel: dto.experienceLevel,
       category: dto.category,
-    };
+    } as Prisma.JobCreateInput;
 
     const data = await this.db.job.create({
       data: created,
