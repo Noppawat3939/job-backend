@@ -23,6 +23,7 @@ import { ConfigService } from '@nestjs/config';
 import { HttpStatusCode } from 'axios';
 import { getKeysHeaders } from 'src/lib';
 
+@UseGuards(JwtAuthGuard)
 @Controller('job')
 export class JobController {
   constructor(
@@ -46,7 +47,6 @@ export class JobController {
     return this.service.getById(+id, user.id);
   }
 
-  @UseGuards(JwtAuthGuard)
   @UseGuards(RolesGuard)
   @SetMetadata('role', [Role.employer])
   @Post('create')

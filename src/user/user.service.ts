@@ -42,7 +42,7 @@ export class UserService {
     const isApproved = eq(action, ACTIVE.APPROVED);
     const isResetActive = eq(action, ACTIVE.UN_APPROVE);
 
-    if (isResetActive && eq(user.active, null)) return accepts('User status is un approve');
+    if (isResetActive && eq(user.active, null)) return accepts(MESSAGE.UPDATE_SUCCESS);
 
     await this.db.user.update({
       where: { id },
