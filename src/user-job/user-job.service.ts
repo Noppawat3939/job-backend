@@ -192,36 +192,46 @@ export class UserJobService {
   }
 
   async getFavoriteJobs(userId: number) {
+    let result: {
+      id: number;
+      userId: number;
+      jobId: number;
+      favoriteDate: Date;
+      job: Job;
+    }[];
+
     const cached = await this.cache.get<string>(CACHE_KEY.FAVORITED_JOBS);
 
     if (cached) {
-      return accepts(MESSAGE.GET_SUCCESS, JSON.parse(cached));
-    }
-
-    const data = await this.db.favoriteJob.findMany({
-      where: { userId },
-      orderBy: { favoriteDate: 'desc' },
-    });
-
-    const response = [] as (FavoriteJob & { job: Job })[];
-
-    for (let i = 0; i < data.length; i++) {
-      const row = data[i];
-
-      const job = await this.db.job.findFirst({
-        where: { id: row.jobId },
+      result = JSON.parse(cached);
+    } else {
+      const data = await this.db.favoriteJob.findMany({
+        where: { userId },
+        orderBy: { favoriteDate: 'desc' },
       });
 
-      const result = { ...row, job };
-      response.push(result);
+      const response = [] as (FavoriteJob & { job: Job })[];
+
+      for (let i = 0; i < data.length; i++) {
+        const row = data[i];
+
+        const job = await this.db.job.findFirst({
+          where: { id: row.jobId },
+        });
+
+        const result = { ...row, job };
+        response.push(result);
+      }
+
+      await this.cache.set(
+        CACHE_KEY.FAVORITED_JOBS,
+        JSON.stringify({ data: response, total: response.length }),
+      );
+
+      result = response;
     }
 
-    await this.cache.set(
-      CACHE_KEY.FAVORITED_JOBS,
-      JSON.stringify({ data: response, total: response.length }),
-    );
-
-    return accepts(MESSAGE.GET_SUCCESS, { data: response, total: response.length });
+    return accepts(MESSAGE.GET_SUCCESS, { data: result, total: result.length });
   }
 
   async deleteApplication(id: number, userId: number) {
