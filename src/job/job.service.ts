@@ -26,7 +26,6 @@ export class JobService {
       urgent: true,
       style: true,
       company: true,
-      updatedAt: true,
       createdAt: true,
       experienceLevel: true,
     } as Prisma.JobSelect;

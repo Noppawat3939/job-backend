@@ -27,6 +27,7 @@ model User {
   updatedAt   DateTime      @updatedAt
   AppliedJob  AppliedJob[]
   FavoriteJob FavoriteJob[]
+  UserResume  UserResume?
 }
 
 model Job {
@@ -83,6 +84,19 @@ model FavoriteJob {
   user         User      @relation(fields: [userId], references: [id])
   job          Job       @relation(fields: [jobId], references: [id])
   favoriteDate DateTime?
+}
+
+model UserResume {
+  userId       Int      @unique
+  position     String
+  user         User     @relation(fields: [userId], references: [id])
+  expectSalary Int[]
+  profile      String?
+  details      Json?
+  active       Boolean?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum WorkStyle {

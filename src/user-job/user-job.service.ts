@@ -4,8 +4,9 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ApplicationStatus, FavoriteJob, Job, Prisma } from '@prisma/client';
 import { CACHE_KEY, MESSAGE } from 'src/constants';
 import { DbService } from 'src/db';
-import { accepts, eq, exceptions } from 'src/lib';
+import { accepts, eq, exceptions, transform } from 'src/lib';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { UpdateResumeDto } from 'src/schemas';
 
 @Injectable()
 export class UserJobService {
@@ -222,6 +223,7 @@ export class UserJobService {
 
     return accepts(MESSAGE.GET_SUCCESS, { data: response, total: response.length });
   }
+
   async deleteApplication(id: number, userId: number) {
     const application = await this.db.appliedJob
       .findFirstOrThrow({ where: { id, userId }, select: { id: true, applicationStatus: true } })
@@ -238,5 +240,50 @@ export class UserJobService {
     await this.db.appliedJob.delete({ where: { id } });
 
     return accepts(MESSAGE.DELETE_SUCCESS);
+  }
+
+  async getResume(userId: number) {
+    const data = await this.db.userResume.findUnique({ where: { userId } });
+
+    return accepts(MESSAGE.GET_SUCCESS, { data });
+  }
+
+  async updateResume(userId: number, dto: UpdateResumeDto) {
+    const data = await this.db.userResume.findUnique({ where: { userId } });
+
+    let result: Omit<typeof data, 'createdAt' | 'updatedAt' | 'active'>;
+
+    const params = {
+      position: dto.position,
+      expectSalary: transform.toNumberArray(dto.expectSalary),
+      details: dto.details,
+      profile: dto.profile,
+    };
+
+    const selected = {
+      userId: true,
+      position: true,
+      expectSalary: true,
+      profile: true,
+      details: true,
+    } as Prisma.UserResumeSelect;
+
+    if (!data) {
+      result = await this.db.userResume.create({
+        data: {
+          userId,
+          ...params,
+        },
+        select: selected,
+      });
+    } else {
+      result = await this.db.userResume.update({
+        data: params,
+        where: { userId },
+        select: { ...selected, updatedAt: true },
+      });
+    }
+
+    return accepts(MESSAGE.UPDATE_SUCCESS, { data: result });
   }
 }

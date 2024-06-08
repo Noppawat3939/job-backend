@@ -9,12 +9,15 @@ import {
   Req,
   SetMetadata,
   UseGuards,
+  UsePipes,
 } from '@nestjs/common';
 import { ApplicationStatus, Role, User } from '@prisma/client';
 import { JwtAuthGuard, RolesGuard } from 'src/guards';
 import { UserJobService } from './user-job.service';
 import { Request } from 'express';
 import { HttpStatusCode } from 'axios';
+import { ZodValidationPipe } from 'nestjs-zod';
+import { UpdateResumeDto } from 'src/schemas';
 
 @UseGuards(JwtAuthGuard)
 @Controller('user-job')
@@ -92,5 +95,24 @@ export class UserJobController {
     const user = req.user as User;
 
     return this.service.deleteApplication(+id, user.id);
+  }
+
+  @UseGuards(RolesGuard)
+  @SetMetadata('role', [Role.user])
+  @Get('/resume')
+  getResume(@Req() req: Request) {
+    const user: User = req.user;
+
+    return this.service.getResume(user.id);
+  }
+
+  @UseGuards(RolesGuard)
+  @SetMetadata('role', [Role.user])
+  @UsePipes(new ZodValidationPipe(UpdateResumeDto))
+  @Post('/resume')
+  updateResume(@Req() req: Request, @Body() body: UpdateResumeDto) {
+    const user: User = req.user;
+
+    return this.service.updateResume(user.id, body);
   }
 }

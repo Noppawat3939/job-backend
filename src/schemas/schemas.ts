@@ -182,3 +182,11 @@ export const experienceLevelSchema = {
     )
     .optional(),
 };
+
+export const userProfileSchema = {
+  common: z.string().optional(),
+};
+
+export const resumeDetailSchema = {
+  common: z.json().optional(),
+};

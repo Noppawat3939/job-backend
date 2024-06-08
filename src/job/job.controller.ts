@@ -23,7 +23,6 @@ import { ConfigService } from '@nestjs/config';
 import { HttpStatusCode } from 'axios';
 import { getKeysHeaders } from 'src/lib';
 
-@UseGuards(JwtAuthGuard)
 @Controller('job')
 export class JobController {
   constructor(
