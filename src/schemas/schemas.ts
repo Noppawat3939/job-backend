@@ -53,6 +53,10 @@ export const lastNameSchema = {
     .min(NAME_MIN_LEN, { message: _M.LAST_NAME.MIN.replace('{min}', String(NAME_MIN_LEN)) }),
 };
 
+export const autoApproveSchema = {
+  create: z.boolean().optional(),
+};
+
 export const positionJobSchema = {
   common: z.string().optional(),
   create: z

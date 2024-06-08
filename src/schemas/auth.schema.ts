@@ -1,5 +1,6 @@
 import { z } from 'nestjs-zod/z';
 import {
+  autoApproveSchema,
   companyNameSchema,
   emailSchema,
   firstNameSchema,
@@ -15,6 +16,7 @@ export const signupUserWithAdminSchema = z.object({
   password: passwordSchema.create,
   firstName: firstNameSchema.create,
   lastName: lastNameSchema.create,
+  autoApprove: autoApproveSchema.create,
 });
 
 export const signupCompanySchema = z.object({

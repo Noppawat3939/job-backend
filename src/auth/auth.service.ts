@@ -2,7 +2,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { Role, User } from '@prisma/client';
+import { Prisma, Role, User } from '@prisma/client';
 import { Cache } from 'cache-manager';
 import { MESSAGE } from 'src/constants';
 import { DbService } from 'src/db';
@@ -25,7 +25,7 @@ export class AuthService {
     @Inject(CACHE_MANAGER) private readonly cache: Cache,
   ) {}
 
-  async signupUserWithAdmin(dto: SignupUserWithAdminDto, role: Role) {
+  async signupUserOrAdmin(dto: SignupUserWithAdminDto, role: Role) {
     const user = await this.db.user.findFirst({
       where: { email: dto.email, role },
     });
@@ -33,15 +33,17 @@ export class AuthService {
     if (user) return exceptions.badRequest(MESSAGE.EMAIL_EXITS);
     const password = await hash(dto.password);
 
+    const createParams = {
+      email: dto.email,
+      firstName: dto.firstName,
+      lastName: dto.lastName,
+      password,
+      role,
+      active: eq(role, 'user') || dto.autoApprove ? true : null,
+    } as Prisma.UserCreateInput;
+
     await this.db.user.create({
-      data: {
-        email: dto.email,
-        firstName: dto.firstName,
-        lastName: dto.lastName,
-        password,
-        role,
-        active: eq(role, 'user') ? true : null,
-      },
+      data: createParams,
     });
 
     return accepts(MESSAGE.CREATE_SUCCESS);

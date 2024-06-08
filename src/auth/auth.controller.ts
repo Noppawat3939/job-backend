@@ -41,13 +41,13 @@ export class AuthController {
   @Post('signup/admin')
   @UsePipes(new ZodValidationPipe(signupUserWithAdminSchema))
   signupAdmin(@Body() body: SignupUserWithAdminDto) {
-    return this.service.signupUserWithAdmin(body, Role.admin);
+    return this.service.signupUserOrAdmin(body, Role.admin);
   }
 
   @Post('signup/user')
   @UsePipes(new ZodValidationPipe(signupUserWithAdminSchema))
   signupUser(@Body() body: SignupUserWithAdminDto) {
-    return this.service.signupUserWithAdmin(body, Role.user);
+    return this.service.signupUserOrAdmin(body, Role.user);
   }
 
   @Post('signup/company')

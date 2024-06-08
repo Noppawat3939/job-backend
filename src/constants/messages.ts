@@ -8,10 +8,10 @@ export const MESSAGE = {
 
   NOT_FOUND: 'Data not found',
   INVALID: 'Data is invalid',
-  GET_SUCCESS: 'Getted data is success',
-  CREATE_SUCCESS: 'Created data is success',
-  UPDATE_SUCCESS: 'Updated data is success',
-  DELETE_SUCCESS: 'Deleted data is success',
+  GET_SUCCESS: 'Getted data',
+  CREATE_SUCCESS: 'Created data',
+  UPDATE_SUCCESS: 'Updated data',
+  DELETE_SUCCESS: 'Deleted data',
   DELETE_FAILED: 'Delete data failed',
   NOT_ACCEPT: 'Data not accept',
 } as const;
