@@ -71,8 +71,7 @@ export class AuthService {
 
     const mailerOption = generateMailerOptions({
       email: createParams.email,
-      firstName: createParams.firstName,
-      lastName: createParams.lastName,
+      full_name: `${createParams.firstName} ${createParams.lastName}`,
     });
 
     this.mailer.sendMail(mailerOption.createAccount);

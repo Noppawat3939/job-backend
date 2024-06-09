@@ -12,18 +12,16 @@ const generateTemplateFilePath = (fileName: string) => {
 
 export const generateMailerOptions = ({
   email,
-  firstName,
-  lastName,
   verify_code,
+  full_name,
 }: {
   email: string;
-  firstName?: string;
-  lastName?: string;
+  full_name?: string;
   verify_code?: string;
 }) => {
   const createAccountTemplate = generateTemplateFilePath('create-account.html').replace(
     /\[full_name\]/g,
-    `${firstName || ''} ${lastName || ''} `,
+    `${full_name || ''} `,
   );
 
   const emailVerifyTemplate = generateTemplateFilePath('email-verification.html').replace(
@@ -31,21 +29,17 @@ export const generateMailerOptions = ({
     verify_code,
   );
 
-  const to = email.toLowerCase();
+  const defaultOption = { to: email.toLowerCase(), from: 'jobify@co.com', sender: 'jobify@co.com' };
 
   const createAccount = {
-    to,
-    from: 'jobify@co.com',
+    ...defaultOption,
     subject: 'Welcome to Jobify!',
-    sender: 'jobify@co.com',
     html: createAccountTemplate,
   } satisfies ISendMailOptions;
 
   const emailVerify = {
-    to,
-    from: 'jobify@co.com',
+    ...defaultOption,
     subject: 'Jobify Email Verification',
-    sender: 'jobify@co.com',
     cc: 'jobify@co.com',
     html: emailVerifyTemplate,
     date: dayjs().format('DD/MM/YYYY'),
