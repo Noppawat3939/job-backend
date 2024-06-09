@@ -9,7 +9,7 @@
 
 ---
 
-Built with the Nestjs, Postgres, Prisma, Docker
+👨‍💻 Built with the Nestjs, Postgres, Prisma, Docker
 
 #### Features
 
@@ -18,5 +18,4 @@ Built with the Nestjs, Postgres, Prisma, Docker
 - 🔑 Authentication using email and google account
 - 💻 Backoffice system manage by role permission
 - 📩 Beautiful thank-you email
-- 👨‍💻 100% written in Typescript
 - 🌟 ...much more
