@@ -9,7 +9,7 @@ datasource db {
 }
 
 model User {
-  id             Int      @id @default(autoincrement())
+  id             Int           @id @default(autoincrement())
   email          String
   password       String
   role           Role
@@ -22,12 +22,11 @@ model User {
   userProfile    String?
   companyHistory String?
   provider       String?
-
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  AppliedJob  AppliedJob[]
-  FavoriteJob FavoriteJob[]
-  UserResume  UserResume?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  AppliedJob     AppliedJob[]
+  FavoriteJob    FavoriteJob[]
+  UserResume     UserResume?
 }
 
 model Job {
@@ -52,51 +51,46 @@ model Job {
   province        String?
   category        String?
   experienceLevel ExperienceLevel?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  AppliedJob  AppliedJob[]
-  FavoriteJob FavoriteJob[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  AppliedJob      AppliedJob[]
+  FavoriteJob     FavoriteJob[]
 
   @@map("job")
 }
 
 model AppliedJob {
-  id     Int  @id @default(autoincrement())
-  userId Int
-  jobId  Int
-  user   User @relation(fields: [userId], references: [id])
-  job    Job  @relation(fields: [jobId], references: [id])
-
+  id                Int                @id @default(autoincrement())
+  userId            Int
+  jobId             Int
   applicationDate   DateTime?
   cancelledDate     DateTime?
   offeredDate       DateTime?
   rejectedDate      DateTime?
   applicationStatus ApplicationStatus?
+  job               Job                @relation(fields: [jobId], references: [id])
+  user              User               @relation(fields: [userId], references: [id])
 }
 
 model FavoriteJob {
-  id     Int @id @default(autoincrement())
-  userId Int
-  jobId  Int
-
-  user         User      @relation(fields: [userId], references: [id])
-  job          Job       @relation(fields: [jobId], references: [id])
+  id           Int       @id @default(autoincrement())
+  userId       Int
+  jobId        Int
   favoriteDate DateTime?
+  job          Job       @relation(fields: [jobId], references: [id])
+  user         User      @relation(fields: [userId], references: [id])
 }
 
 model UserResume {
   userId       Int      @unique
   position     String
-  user         User     @relation(fields: [userId], references: [id])
   expectSalary Int[]
   profile      String?
   details      Json?
   active       Boolean?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id])
 }
 
 enum WorkStyle {

@@ -11,7 +11,7 @@ export class DbService extends PrismaClient implements OnModuleInit {
 
       console.log(`✅ Connnected database on ${DB_RUN}`);
     } catch (error) {
-      console.log(`❌ Failed connect database on ${DB_RUN}`);
+      console.log(`❌ Failed connect database on ${DB_RUN}`, error);
     }
   }
 }
