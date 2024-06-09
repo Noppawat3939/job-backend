@@ -1,30 +1,22 @@
 <p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
+ <img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" />
 </p>
 
 [circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
 [circleci-url]: https://circleci.com/gh/nestjs/nest
 
-## Main features
+## Jobify (API) - Find your job
 
-#### :zap: Authentication
+---
 
-- Signin, signup and forget password by roles.
+Built with the Nestjs, Postgres, Prisma, Docker
 
-#### :construction_worker: Users management
+#### Features
 
-- Create, view, update, delete user by roles.
-
-#### :memo: Jobs management
-
-- Create, view, update, delete job by roles.
-
-```
-application role include user, company, admin and super admin
-```
-
-<br/>
-<br/>
-<br/>
-
-Other feature is comming soon... :tada:
+- 💼 Completely query, apply and favorite job
+- 📝 Completely custom resume template
+- 🔑 Authentication using email and google account
+- 💻 Backoffice system manage by role permission
+- 📩 Beautiful thank-you email
+- 👨‍💻 100% written in Typescript
+- 🌟 ...much more
