@@ -1,3 +1,4 @@
+import { MailerService } from '@nestjs-modules/mailer';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -6,7 +7,15 @@ import { Prisma, Role, User } from '@prisma/client';
 import { Cache } from 'cache-manager';
 import { MESSAGE } from 'src/constants';
 import { DbService } from 'src/db';
-import { accepts, checkLastUpdated, compareHash, eq, exceptions, hash } from 'src/lib';
+import {
+  accepts,
+  checkLastUpdated,
+  compareHash,
+  eq,
+  exceptions,
+  generateMailerOptions,
+  hash,
+} from 'src/lib';
 import {
   ForgotPasswordCompanyDto,
   ForgotPasswordUserWithAdminDto,
@@ -22,6 +31,7 @@ export class AuthService {
     private readonly db: DbService,
     private readonly jwt: JwtService,
     private readonly config: ConfigService,
+    private readonly mailer: MailerService,
     @Inject(CACHE_MANAGER) private readonly cache: Cache,
   ) {}
 
@@ -45,6 +55,14 @@ export class AuthService {
     await this.db.user.create({
       data: createParams,
     });
+
+    const mailerOption = generateMailerOptions({
+      email: createParams.email,
+      firstName: createParams.firstName,
+      lastName: createParams.lastName,
+    });
+
+    this.mailer.sendMail(mailerOption.createAccount);
 
     return accepts(MESSAGE.CREATE_SUCCESS);
   }
@@ -164,17 +182,19 @@ export class AuthService {
         const password = await hash(user.providerId);
         const [firstName, lastName] = user.name.split(' ');
 
+        const createParams = {
+          email: user.email,
+          firstName,
+          lastName,
+          provider: user.provider,
+          password,
+          active: true,
+          role: Role.user,
+          userProfile: user.picture,
+        } as Prisma.UserCreateInput;
+
         const created = await this.db.user.create({
-          data: {
-            email: user.email,
-            firstName,
-            lastName,
-            provider: user.provider,
-            password,
-            active: true,
-            role: Role.user,
-            userProfile: user.picture,
-          },
+          data: createParams,
         });
 
         payload.id = created.id;

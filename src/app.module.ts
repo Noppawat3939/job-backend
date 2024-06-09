@@ -9,9 +9,10 @@ import { UserModule } from './user';
 import { JobModule } from './job/job.module';
 import { CompanyModule } from './company';
 import { UserJobModule } from './user-job';
-import { configOptins } from './configs';
+import { configOptins, mailerOptions } from './configs';
 import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-yet';
+import { MailerModule } from '@nestjs-modules/mailer';
 
 const { REDIS_HOST: redisHost, REDIS_PORT: redisPort, CACHE_TTL: cacheTtl } = process.env;
 
@@ -27,6 +28,7 @@ const { REDIS_HOST: redisHost, REDIS_PORT: redisPort, CACHE_TTL: cacheTtl } = pr
         }),
       }),
     }),
+    MailerModule.forRoot(mailerOptions),
     DbModule,
     AuthModule,
     PublicModule,
