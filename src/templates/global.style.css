@@ -1,0 +1,26 @@
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  color: #333;
+  font-family: Arial, sans-serif;
+}
+
+.wrap-logo {
+  display: flex;
+  align-items: center;
+  padding-block: 10px;
+  text-align: center;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.03);
+  justify-content: center;
+}
+
+.container {
+  max-width: 800px;
+  padding-inline: 16px;
+  margin: auto;
+}
+
+.content {
+  line-height: 1.25;
+}

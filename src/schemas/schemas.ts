@@ -57,6 +57,14 @@ export const autoApproveSchema = {
   create: z.boolean().optional(),
 };
 
+export const verifyCodeSchema = {
+  create: z.string().optional(),
+};
+
+export const oobCodeSchema = {
+  create: z.string().optional(),
+};
+
 export const positionJobSchema = {
   common: z.string().optional(),
   create: z

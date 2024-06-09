@@ -7,7 +7,9 @@ import {
   industrySchema,
   lastNameSchema,
   newPasswordSchema,
+  oobCodeSchema,
   passwordSchema,
+  verifyCodeSchema,
 } from './schemas';
 import { createZodDto } from 'nestjs-zod';
 
@@ -17,6 +19,8 @@ export const signupUserWithAdminSchema = z.object({
   firstName: firstNameSchema.create,
   lastName: lastNameSchema.create,
   autoApprove: autoApproveSchema.create,
+  verifyCode: verifyCodeSchema.create,
+  oobCode: oobCodeSchema.create,
 });
 
 export const signupCompanySchema = z.object({
@@ -42,6 +46,10 @@ export const forgotPasswordCompanySchema = z.object({
   newPassword: newPasswordSchema.create,
 });
 
+export const sendVerifyCodeSchema = z.object({
+  email: emailSchema.comon,
+});
+
 export class SignupUserWithAdminDto extends createZodDto(signupUserWithAdminSchema) {}
 export class SignupCompanyDto extends createZodDto(signupCompanySchema) {}
 export class ForgotPasswordUserWithAdminDto extends createZodDto(
@@ -49,3 +57,4 @@ export class ForgotPasswordUserWithAdminDto extends createZodDto(
 ) {}
 export class ForgotPasswordCompanyDto extends createZodDto(forgotPasswordCompanySchema) {}
 export class SigninDto extends createZodDto(signinSchema) {}
+export class SendEmailVerifyDto extends createZodDto(sendVerifyCodeSchema) {}

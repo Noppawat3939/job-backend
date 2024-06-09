@@ -18,6 +18,14 @@ export type JwtPayload = { id: number; email: string; role: Role; iat: number; e
 
 export type JwtDecode = { id: number; email: string; role: Role; iat: number; exp: number };
 
+export type OobDecode = {
+  code: string;
+  expiresIn: string;
+  email: string;
+  iat: number;
+  exp: number;
+};
+
 export type QueryApproveUsers = (typeof valueActive)[number];
 
 export type WorkingStyle = typeof PCWorkStyle;

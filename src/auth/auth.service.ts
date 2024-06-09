@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Prisma, Role, User } from '@prisma/client';
 import { Cache } from 'cache-manager';
+import dayjs from 'dayjs';
 import { MESSAGE } from 'src/constants';
 import { DbService } from 'src/db';
 import {
@@ -13,17 +14,19 @@ import {
   compareHash,
   eq,
   exceptions,
+  generateCode,
   generateMailerOptions,
   hash,
 } from 'src/lib';
 import {
   ForgotPasswordCompanyDto,
   ForgotPasswordUserWithAdminDto,
+  SendEmailVerifyDto,
   SigninDto,
   SignupCompanyDto,
   SignupUserWithAdminDto,
 } from 'src/schemas';
-import { GoogleUser, JwtPayload } from 'src/types';
+import type { GoogleUser, JwtPayload, OobDecode } from 'src/types';
 
 @Injectable()
 export class AuthService {
@@ -41,6 +44,16 @@ export class AuthService {
     });
 
     if (user) return exceptions.badRequest(MESSAGE.EMAIL_EXITS);
+
+    if (eq(role, Role.user) && (!dto.verifyCode || !dto.oobCode))
+      return exceptions.badRequest(MESSAGE.INVALID);
+
+    const oobDecoded = this.jwt.decode(dto.oobCode) satisfies OobDecode;
+
+    if (dayjs().isAfter(oobDecoded.expiresIn)) return exceptions.badRequest('Oob code is expired');
+    if (dto.verifyCode !== oobDecoded.code || oobDecoded.email !== dto.email)
+      return exceptions.badRequest(MESSAGE.INVALID);
+
     const password = await hash(dto.password);
 
     const createParams = {
@@ -49,7 +62,7 @@ export class AuthService {
       lastName: dto.lastName,
       password,
       role,
-      active: eq(role, 'user') || dto.autoApprove ? true : null,
+      active: eq(role, Role.user) || dto.autoApprove ? true : null,
     } as Prisma.UserCreateInput;
 
     await this.db.user.create({
@@ -213,5 +226,17 @@ export class AuthService {
     } catch (error) {
       return exceptions.internalServerError(`Can't signin with ${user.provider}`);
     }
+  }
+
+  async sendVerifyEmail(dto: SendEmailVerifyDto) {
+    const code = generateCode();
+    const payload = { code, expiresIn: dayjs().add(10, 'minute').toDate(), email: dto.email };
+    const verify_code = await this.jwt.signAsync(payload);
+
+    const mailerOption = generateMailerOptions({ email: dto.email, verify_code: code });
+
+    this.mailer.sendMail(mailerOption.emailVerify);
+
+    return accepts('Send email', { data: { oob_code: verify_code } });
   }
 }

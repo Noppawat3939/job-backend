@@ -15,11 +15,13 @@ import { ZodValidationPipe } from 'nestjs-zod';
 import {
   ForgotPasswordCompanyDto,
   ForgotPasswordUserWithAdminDto,
+  SendEmailVerifyDto,
   SigninDto,
   SignupCompanyDto,
   SignupUserWithAdminDto,
   forgotPasswordCompanySchema,
   forgotPasswordUserWithAdminSchema,
+  sendVerifyCodeSchema,
   signinSchema,
   signupCompanySchema,
   signupUserWithAdminSchema,
@@ -106,5 +108,12 @@ export class AuthController {
     res.cookie('token', token, { expires });
 
     return res.redirect(url);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('signup/verify-email')
+  @UsePipes(new ZodValidationPipe(sendVerifyCodeSchema))
+  sendVerifyCode(@Body() dto: SendEmailVerifyDto) {
+    return this.service.sendVerifyEmail(dto);
   }
 }
