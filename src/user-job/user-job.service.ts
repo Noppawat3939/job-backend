@@ -290,8 +290,10 @@ export class UserJobService {
     return accepts(MESSAGE.CREATE_SUCCESS, { data: result });
   }
 
-  async updateResume(resumeId: number, dto: UpdateResumeDto) {
-    const data = await this.db.userResume.findFirst({ where: { id: resumeId } });
+  async updateResume(resumeId: number, userId: number, dto: UpdateResumeDto) {
+    const data = await this.db.userResume
+      .findFirstOrThrow({ where: { id: resumeId, userId } })
+      .catch(() => exceptions.notFound(MESSAGE.NOT_FOUND));
 
     const updateParams = {
       position: dto.position,
