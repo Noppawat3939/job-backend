@@ -268,8 +268,8 @@ export class UserJobService {
     let result: UserResume;
 
     const createParams = {
-      expectSalary: transform.toNumberArray(dto.expectSalary),
       ...dto,
+      expectSalary: transform.toNumberArray(dto.expectSalary),
     } as Prisma.UserResumeCreateInput;
 
     if (subscription.type) {
