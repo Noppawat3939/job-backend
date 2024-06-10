@@ -1,5 +1,5 @@
 import { ACTIVE } from 'src/constants';
-import { Job, Role } from '@prisma/client';
+import { Job, Prisma, Role } from '@prisma/client';
 import { WorkStyle as PCWorkStyle } from '@prisma/client';
 
 const valueActive = Object.values(ACTIVE);
@@ -69,3 +69,15 @@ export type GoogleUser = {
 export type Transform<T, K extends { [k in keyof T]: unknown }> = Omit<T, keyof K> & K;
 
 export type KeysHeaders = { apiKey: string; token?: string };
+
+export type UserResume = {
+  id: number;
+  userId: number;
+  position: string;
+  expectSalary: number[];
+  profile?: string;
+  details?: Prisma.JsonValue;
+  active: boolean | null;
+  createdAt: Date;
+  updatedAt: Date;
+};

@@ -1,12 +1,13 @@
 import dayjs from 'dayjs';
 import { type Cache } from 'cache-manager';
 import { Inject, Injectable } from '@nestjs/common';
-import { ApplicationStatus, FavoriteJob, Job, Prisma } from '@prisma/client';
-import { CACHE_KEY, MESSAGE } from 'src/constants';
+import { ApplicationStatus, FavoriteJob, Job, Prisma, User } from '@prisma/client';
+import { CACHE_KEY, MAX_INSERT_DATA, MESSAGE } from 'src/constants';
 import { DbService } from 'src/db';
 import { accepts, eq, exceptions, transform } from 'src/lib';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { UpdateResumeDto } from 'src/schemas';
+import type { UserResume } from 'src/types';
 
 @Injectable()
 export class UserJobService {
@@ -38,7 +39,7 @@ export class UserJobService {
           ApplicationStatus.offered,
         ],
       },
-    };
+    } as Prisma.AppliedJobWhereInput;
 
     const applications = await this.db.appliedJob.findMany({
       where: filter,
@@ -253,22 +254,51 @@ export class UserJobService {
   }
 
   async getResume(userId: number) {
-    const data = await this.db.userResume.findUnique({ where: { userId } });
+    const data = await this.db.userResume.findFirst({ where: { userId } });
 
     return accepts(MESSAGE.GET_SUCCESS, { data });
   }
 
-  async updateResume(userId: number, dto: UpdateResumeDto) {
-    const data = await this.db.userResume.findUnique({ where: { userId } });
+  async insertResume(user: User, dto: UpdateResumeDto) {
+    const subscription = await this.db.subscription.findFirst({
+      where: { userEmail: user.email },
+      select: { type: true },
+    });
 
-    let result: Omit<typeof data, 'createdAt' | 'updatedAt' | 'active'>;
+    let result: UserResume;
 
-    const params = {
+    const createParams = {
+      expectSalary: transform.toNumberArray(dto.expectSalary),
+      ...dto,
+    } as Prisma.UserResumeCreateInput;
+
+    if (subscription.type) {
+      const resumeData = await this.db.userResume.findMany({
+        where: { userId: user.id },
+        select: { id: true },
+      });
+
+      if (resumeData.length < MAX_INSERT_DATA[subscription.type]) {
+        result = await this.db.userResume.create({ data: createParams });
+      } else {
+        return exceptions.unProcessable('Limit create data');
+      }
+    } else {
+      result = await this.db.userResume.create({ data: createParams });
+    }
+
+    return accepts(MESSAGE.CREATE_SUCCESS, { data: result });
+  }
+
+  async updateResume(resumeId: number, dto: UpdateResumeDto) {
+    const data = await this.db.userResume.findFirst({ where: { id: resumeId } });
+
+    const updateParams = {
       position: dto.position,
       expectSalary: transform.toNumberArray(dto.expectSalary),
       details: dto.details,
       profile: dto.profile,
-    };
+    } as Prisma.UserResumeUpdateInput;
 
     const selected = {
       userId: true,
@@ -276,23 +306,14 @@ export class UserJobService {
       expectSalary: true,
       profile: true,
       details: true,
+      updatedAt: true,
     } as Prisma.UserResumeSelect;
 
-    if (!data) {
-      result = await this.db.userResume.create({
-        data: {
-          userId,
-          ...params,
-        },
-        select: selected,
-      });
-    } else {
-      result = await this.db.userResume.update({
-        data: params,
-        where: { userId },
-        select: { ...selected, updatedAt: true },
-      });
-    }
+    const result = await this.db.userResume.update({
+      data: updateParams,
+      where: { id: data.id },
+      select: selected,
+    });
 
     return accepts(MESSAGE.UPDATE_SUCCESS, { data: result });
   }

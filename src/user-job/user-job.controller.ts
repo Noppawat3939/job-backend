@@ -110,9 +110,16 @@ export class UserJobController {
   @SetMetadata('role', [Role.user])
   @UsePipes(new ZodValidationPipe(UpdateResumeDto))
   @Post('/resume')
-  updateResume(@Req() req: Request, @Body() body: UpdateResumeDto) {
+  insertResume(@Req() req: Request, @Body() body: UpdateResumeDto) {
     const user: User = req.user;
+    return this.service.insertResume(user, body);
+  }
 
-    return this.service.updateResume(user.id, body);
+  @UseGuards(RolesGuard)
+  @SetMetadata('role', [Role.user])
+  @UsePipes(new ZodValidationPipe(UpdateResumeDto))
+  @Post('/resume/:id')
+  updateResume(@Param() { id }: { id: string }, @Body() body: UpdateResumeDto) {
+    return this.service.updateResume(+id, body);
   }
 }
