@@ -88,7 +88,10 @@ export class UserJobService {
   async cancelJob(applicationId: number, userId: number) {
     const appliedJob = await this.db.appliedJob
       .findFirstOrThrow({ where: { id: applicationId, userId } })
-      .catch(() => exceptions.notFound(MESSAGE.NOT_FOUND));
+      .catch(async () => {
+        await this.cache.del(CACHE_KEY.APPLIED_JOBS);
+        return exceptions.notFound(MESSAGE.NOT_FOUND);
+      });
 
     if (
       ![String(ApplicationStatus.cancelled), ApplicationStatus.applied].includes(
@@ -204,7 +207,7 @@ export class UserJobService {
     const cached = await this.cache.get<string>(CACHE_KEY.FAVORITED_JOBS);
 
     if (cached) {
-      result = JSON.parse(cached);
+      result = JSON.parse(cached)?.data;
     } else {
       const data = await this.db.favoriteJob.findMany({
         where: { userId },
