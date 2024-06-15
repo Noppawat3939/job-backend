@@ -12,6 +12,6 @@ export class UserResumeController {
   @SetMetadata('role', [Role.user])
   @Get('/templates')
   getTemplates() {
-    return { msg: 'OK' };
+    return this.service.getTemplates();
   }
 }

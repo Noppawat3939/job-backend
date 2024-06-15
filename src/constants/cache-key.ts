@@ -3,4 +3,5 @@ export const CACHE_KEY = {
   FAVORITED_JOBS: 'favorited-jobs',
   USER: 'user',
   PUBLIC_JOB: 'public_job',
+  RESUME_TEMPLATES: 'resume-templates',
 } as const;
