@@ -102,6 +102,11 @@ model Subscription {
   updatedAt DateTime         @updatedAt
 }
 
+model ResumeTemplate {
+  id    Int     @id @default(autoincrement())
+  image String?
+}
+
 enum WorkStyle {
   remote
   work_from_home

@@ -13,6 +13,7 @@ import { configOptins, mailerOptions } from './configs';
 import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-yet';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { UserResumeModule } from './user-resume';
 
 const { REDIS_HOST: redisHost, REDIS_PORT: redisPort, CACHE_TTL: cacheTtl } = process.env;
 
@@ -36,6 +37,7 @@ const { REDIS_HOST: redisHost, REDIS_PORT: redisPort, CACHE_TTL: cacheTtl } = pr
     JobModule,
     CompanyModule,
     UserJobModule,
+    UserResumeModule,
   ],
   providers: [{ provide: APP_PIPE, useClass: ZodValidationPipe }],
 })

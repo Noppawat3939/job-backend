@@ -2,14 +2,13 @@
 import type { Provinces } from 'src/types';
 import { Inject, Injectable } from '@nestjs/common';
 import { accepts, exceptions, pretty } from 'src/lib';
-import { industries, jobCategories } from './data';
+import { industries, jobCategories, testimonials } from './data';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { DbService } from 'src/db';
 import { CACHE_KEY, MESSAGE } from 'src/constants';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
-import { Job } from '@prisma/client';
 
 @Injectable()
 export class PublicService {
@@ -61,5 +60,17 @@ export class PublicService {
       data: categories,
       total: categories.length,
     });
+  }
+
+  getTesimonials() {
+    const data = testimonials;
+
+    return accepts(MESSAGE.GET_SUCCESS, { data, total: data.length });
+  }
+
+  async getResumeTemplates() {
+    const data = await this.db.resumeTemplate.findMany();
+
+    return accepts(MESSAGE.GET_SUCCESS, { data, total: data.length });
   }
 }
