@@ -198,3 +198,12 @@ export const userProfileSchema = {
 export const resumeDetailSchema = {
   common: z.json().optional(),
 };
+
+export const templateResumeSchema = {
+  templateId: z.number(),
+  templateData: z.json().optional(),
+  backgroundColorTemplate: z.string().optional(),
+  titleColorTemplate: z.string().optional(),
+  subTitileColorTemplate: z.string().optional(),
+  paragraphColorTemplate: z.string().optional(),
+};

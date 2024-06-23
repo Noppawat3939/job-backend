@@ -83,16 +83,20 @@ model FavoriteJob {
 }
 
 model UserResume {
-  id           Int      @id @default(autoincrement())
-  userId       Int
-  position     String
-  expectSalary Int[]
-  profile      String?
-  details      Json?
-  active       Boolean?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  User         User[]
+  id                      Int            @id @default(autoincrement())
+  userId                  Int
+  position                String
+  templateId              Int
+  templateData            Json?
+  backgroundColorTemplate String?
+  titleColorTemplate      String?
+  subTitileColorTemplate  String?
+  paragraphColorTemplate  String?
+  active                  Boolean?
+  createdAt               DateTime       @default(now())
+  updatedAt               DateTime       @updatedAt
+  User                    User[]
+  template                ResumeTemplate @relation(fields: [templateId], references: [id])
 }
 
 model Subscription {
@@ -103,8 +107,13 @@ model Subscription {
 }
 
 model ResumeTemplate {
-  id    Int     @id @default(autoincrement())
-  image String?
+  id              Int          @id @default(autoincrement())
+  image           String?
+  backgroundColor String?
+  titleColor      String?
+  subTitileColor  String?
+  paragraphColor  String?
+  UserResume      UserResume[]
 }
 
 enum WorkStyle {

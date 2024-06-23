@@ -16,7 +16,7 @@ export const configOptins = { isGlobal: true } satisfies ConfigModuleOptions;
 export const jwtOptions = {
   global: true,
   secret: process.env.JWT_SECRET,
-  signOptions: { expiresIn: '6h' },
+  signOptions: { expiresIn: '3d' },
 } satisfies JwtModuleOptions;
 
 export const passportOptions = { defaultStrategy: 'jwt' } satisfies IAuthModuleOptions<unknown>;

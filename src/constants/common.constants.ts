@@ -9,5 +9,5 @@ export const ACTIVE = {
 export const MAX_INSERT_DATA = {
   sub_A: 15,
   sub_B: 8,
-  sub_C: 3,
+  sub_C: 3, //free subscribe
 } as Record<keyof typeof SubscriptionType, number>;
