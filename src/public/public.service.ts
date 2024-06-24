@@ -2,7 +2,7 @@
 import type { Provinces } from 'src/types';
 import { Inject, Injectable } from '@nestjs/common';
 import { accepts, exceptions, pretty } from 'src/lib';
-import { industries, jobCategories, testimonials } from './data';
+import { SUBSCRIBE_DATA, industries, jobCategories, testimonials } from './data';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { DbService } from 'src/db';
@@ -72,5 +72,11 @@ export class PublicService {
     const data = await this.db.resumeTemplate.findMany();
 
     return accepts(MESSAGE.GET_SUCCESS, { data, total: data.length });
+  }
+
+  getSubscribe() {
+    const data = SUBSCRIBE_DATA;
+
+    return accepts(MESSAGE.GET_SUCCESS, { data });
   }
 }

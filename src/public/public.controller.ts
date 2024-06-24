@@ -31,4 +31,9 @@ export class PublicController {
   getTesimonials() {
     return this.service.getTesimonials();
   }
+
+  @Get('subscribe')
+  getSubscribeData() {
+    return this.service.getSubscribe();
+  }
 }
