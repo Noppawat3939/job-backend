@@ -15,7 +15,8 @@ export class UserResumeService {
   async getTemplates() {
     let result: { id: number; image: string }[];
 
-    const cached = await this.cache.get<string>(CACHE_KEY.RESUME_TEMPLATES);
+    const cached = false;
+    await this.cache.get<string>(CACHE_KEY.RESUME_TEMPLATES);
 
     if (cached) {
       result = JSON.parse(cached);

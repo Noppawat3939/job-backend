@@ -83,20 +83,16 @@ model FavoriteJob {
 }
 
 model UserResume {
-  id                      Int            @id @default(autoincrement())
-  userId                  Int
-  position                String
-  templateId              Int
-  templateData            Json?
-  backgroundColorTemplate String?
-  titleColorTemplate      String?
-  subTitileColorTemplate  String?
-  paragraphColorTemplate  String?
-  active                  Boolean?
-  createdAt               DateTime       @default(now())
-  updatedAt               DateTime       @updatedAt
-  User                    User[]
-  template                ResumeTemplate @relation(fields: [templateId], references: [id])
+  id            Int            @id @default(autoincrement())
+  userId        Int
+  templateTitle String
+  templateId    Int
+  templateData  Json?
+  active        Boolean?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  User          User[]
+  template      ResumeTemplate @relation(fields: [templateId], references: [id])
 }
 
 model Subscription {

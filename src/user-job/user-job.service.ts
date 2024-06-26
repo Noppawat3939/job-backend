@@ -300,11 +300,7 @@ export class UserJobService {
 
     if (cached) await this.cache.del(CACHE_KEY.USER_RESUME);
 
-    const createParams = {
-      userId: user.id,
-      position: dto.position,
-      ...dto,
-    } as Prisma.UserResumeCreateInput;
+    const createParams = { userId: user.id, ...dto } as Prisma.UserResumeCreateInput;
 
     if (
       (subscription && resumeData.length > MAX_INSERT_DATA[subscription?.type]) ||
@@ -318,12 +314,8 @@ export class UserJobService {
       const data = {
         templateId: Number(dto.templateId),
         userId: createParams.userId,
-        position: createParams.position,
+        templateTitle: createParams.templateTitle,
         templateData: createParams.templateData,
-        backgroundColorTemplate: createParams.backgroundColorTemplate,
-        subTitileColorTemplate: createParams.subTitileColorTemplate,
-        titleColorTemplate: createParams.titleColorTemplate,
-        paragraphColorTemplate: createParams.paragraphColorTemplate,
       };
 
       result = await this.db.userResume.create({ data });
@@ -342,7 +334,7 @@ export class UserJobService {
     if (cached) await this.cache.del(CACHE_KEY.USER_RESUME);
 
     const updateParams = {
-      position: dto.position,
+      templateTitle: dto.templateTitle,
       templateData: dto.templateData,
     } as Prisma.UserResumeUpdateInput;
 

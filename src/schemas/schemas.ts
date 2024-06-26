@@ -200,10 +200,7 @@ export const resumeDetailSchema = {
 };
 
 export const templateResumeSchema = {
+  templateTitle: z.string({ required_error: 'title template is required' }),
   templateId: z.number(),
   templateData: z.json().optional(),
-  backgroundColorTemplate: z.string().optional(),
-  titleColorTemplate: z.string().optional(),
-  subTitileColorTemplate: z.string().optional(),
-  paragraphColorTemplate: z.string().optional(),
 };

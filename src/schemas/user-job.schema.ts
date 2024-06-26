@@ -1,10 +1,7 @@
 import { z } from 'nestjs-zod/z';
-import { positionJobSchema, templateResumeSchema } from './schemas';
+import { templateResumeSchema } from './schemas';
 import { createZodDto } from 'nestjs-zod';
 
-export const userResumeSchema = z.object({
-  position: positionJobSchema.create,
-  ...templateResumeSchema,
-});
+export const userResumeSchema = z.object(templateResumeSchema);
 
 export class UpdateResumeDto extends createZodDto(userResumeSchema) {}
