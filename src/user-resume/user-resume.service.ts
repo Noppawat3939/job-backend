@@ -47,10 +47,7 @@ export class UserResumeService {
 
     const createParams = { userId: user.id, ...dto } as Prisma.UserResumeCreateInput;
 
-    if (
-      (subscribe && resumes?.length > maxInsert) ||
-      (!subscribe && resumes?.length >= MAX_INSERT_DATA.sub_C)
-    )
+    if ((subscribe && resumes?.length > maxInsert) || (!subscribe && resumes?.length > 1))
       return exceptions.unProcessable('Limit exceed create');
 
     const result = await this.db.userResume.create({ data: createParams });
@@ -77,5 +74,38 @@ export class UserResumeService {
     });
 
     return accepts(MESSAGE.UPDATE_SUCCESS, { data: result });
+  }
+
+  async updatePublicUserResume(id: number, user: User) {
+    const resume = await this.db.userResume
+      .findFirstOrThrow({ where: { id, userId: user.id } })
+      .catch(() => exceptions.notFound(MESSAGE.NOT_FOUND))
+      .finally(async () => {
+        const cached = await this.cache.get<string>(CACHE_KEY.USER_RESUME);
+
+        if (cached) await this.cache.del(CACHE_KEY.USER_RESUME);
+      });
+
+    if (!resume.active) {
+      await this.db.userResume.update({ where: { id: resume.id }, data: { active: true } });
+    }
+
+    return accepts(MESSAGE.UPDATE_SUCCESS);
+  }
+
+  async deleteUserResume(id: number, user: User) {
+    await this.db.userResume
+      .findFirstOrThrow({ where: { id, userId: user.id } })
+      .then(async () => {
+        await this.db.userResume.delete({ where: { id } });
+
+        return accepts(MESSAGE.DELETE_SUCCESS);
+      })
+      .catch(() => exceptions.notFound(MESSAGE.NOT_FOUND))
+      .finally(async () => {
+        const cached = await this.cache.get<string>(CACHE_KEY.USER_RESUME);
+
+        if (cached) await this.cache.del(CACHE_KEY.USER_RESUME);
+      });
   }
 }
