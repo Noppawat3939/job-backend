@@ -1,20 +1,11 @@
 import dayjs from 'dayjs';
 import { type Cache } from 'cache-manager';
 import { Inject, Injectable } from '@nestjs/common';
-import {
-  ApplicationStatus,
-  FavoriteJob,
-  Job,
-  Prisma,
-  ResumeTemplate,
-  User,
-  UserResume,
-} from '@prisma/client';
-import { CACHE_KEY, MAX_INSERT_DATA, MESSAGE } from 'src/constants';
+import { ApplicationStatus, FavoriteJob, Job, Prisma } from '@prisma/client';
+import { CACHE_KEY, MESSAGE } from 'src/constants';
 import { DbService } from 'src/db';
-import { accepts, eq, exceptions, transform } from 'src/lib';
+import { accepts, eq, exceptions } from 'src/lib';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { UpdateResumeDto } from 'src/schemas';
 
 @Injectable()
 export class UserJobService {
@@ -261,44 +252,5 @@ export class UserJobService {
     await this.db.appliedJob.delete({ where: { id } });
 
     return accepts(MESSAGE.DELETE_SUCCESS);
-  }
-
-  async getResume(userId: number) {
-    let result: UserResume[];
-    const cached = await this.cache.get<string>(CACHE_KEY.USER_RESUME);
-
-    if (cached) {
-      result = JSON.parse(cached);
-    } else {
-      const data = await this.db.userResume.findMany({
-        where: { userId },
-        include: { template: true },
-        orderBy: { createdAt: 'desc' },
-      });
-
-      await this.cache.set(CACHE_KEY.USER_RESUME, JSON.stringify(data));
-
-      result = data;
-    }
-
-    return accepts(MESSAGE.GET_SUCCESS, { data: result, total: result.length });
-  }
-
-  async getUserResumeById(userId: number, resumeId: number) {
-    let result: UserResume & { template?: ResumeTemplate };
-    const cached = await this.cache.get<string>(CACHE_KEY.USER_RESUME);
-
-    if (cached) {
-      const parsedCache: (UserResume & { template: ResumeTemplate })[] = JSON.parse(cached);
-
-      const found = parsedCache.find((data) => data.userId === userId && data.id === resumeId);
-      delete found.template;
-
-      result = found;
-    } else {
-      result = await this.db.userResume.findFirst({ where: { userId, id: resumeId } });
-    }
-
-    return accepts(MESSAGE.GET_SUCCESS, { data: result });
   }
 }

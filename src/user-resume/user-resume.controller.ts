@@ -75,4 +75,22 @@ export class UserResumeController {
 
     return this.service.deleteUserResume(+id, user);
   }
+
+  @UseGuards(RolesGuard)
+  @SetMetadata('role', [Role.user])
+  @Get('/')
+  getResumes(@Req() req: Request) {
+    const user: User = req.user;
+
+    return this.service.getUserResumes(user.id);
+  }
+
+  @UseGuards(RolesGuard)
+  @SetMetadata('role', [Role.user])
+  @Get('/:id')
+  getResume(@Param() { id }: { id: string }, @Req() req: Request) {
+    const user: User = req.user;
+
+    return this.service.getResume(+id, user.id);
+  }
 }

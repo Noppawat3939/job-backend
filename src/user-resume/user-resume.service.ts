@@ -1,6 +1,6 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject, Injectable } from '@nestjs/common';
-import { Prisma, User } from '@prisma/client';
+import { Prisma, ResumeTemplate, User, UserResume } from '@prisma/client';
 import { Cache } from 'cache-manager';
 import { CACHE_KEY, MAX_INSERT_DATA, MESSAGE } from 'src/constants';
 import { DbService } from 'src/db';
@@ -107,5 +107,44 @@ export class UserResumeService {
 
         if (cached) await this.cache.del(CACHE_KEY.USER_RESUME);
       });
+  }
+
+  async getUserResumes(userId: number) {
+    let result: UserResume[];
+    const cached = await this.cache.get<string>(CACHE_KEY.USER_RESUME);
+
+    if (cached) {
+      result = JSON.parse(cached);
+    } else {
+      const data = await this.db.userResume.findMany({
+        where: { userId },
+        include: { template: true },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      await this.cache.set(CACHE_KEY.USER_RESUME, JSON.stringify(data));
+
+      result = data;
+    }
+
+    return accepts(MESSAGE.GET_SUCCESS, { data: result, total: result.length });
+  }
+
+  async getResume(userId: number, resumeId: number) {
+    let result: UserResume & { template?: ResumeTemplate };
+    const cached = await this.cache.get<string>(CACHE_KEY.USER_RESUME);
+
+    if (cached) {
+      const parsedCache: (UserResume & { template: ResumeTemplate })[] = JSON.parse(cached);
+
+      const found = parsedCache.find((data) => data.userId === userId && data.id === resumeId);
+      delete found.template;
+
+      result = found;
+    } else {
+      result = await this.db.userResume.findFirst({ where: { userId, id: resumeId } });
+    }
+
+    return accepts(MESSAGE.GET_SUCCESS, { data: result });
   }
 }

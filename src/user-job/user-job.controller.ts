@@ -93,22 +93,4 @@ export class UserJobController {
 
     return this.service.deleteApplication(+id, user.id);
   }
-
-  @UseGuards(RolesGuard)
-  @SetMetadata('role', [Role.user])
-  @Get('/resume')
-  getResume(@Req() req: Request) {
-    const user: User = req.user;
-
-    return this.service.getResume(user.id);
-  }
-
-  @UseGuards(RolesGuard)
-  @SetMetadata('role', [Role.user])
-  @Get('/resume/:id')
-  getResumeById(@Param() { id }: { id: string }, @Req() req: Request) {
-    const user: User = req.user;
-
-    return this.service.getUserResumeById(user.id, +id);
-  }
 }
