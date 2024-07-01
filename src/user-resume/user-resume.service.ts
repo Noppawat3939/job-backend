@@ -122,7 +122,7 @@ export class UserResumeService {
         orderBy: { createdAt: 'desc' },
       });
 
-      await this.cache.set(CACHE_KEY.USER_RESUME, JSON.stringify(data));
+      await this.cache.set(CACHE_KEY.USER_RESUME, JSON.stringify(data), 30000);
 
       result = data;
     }
