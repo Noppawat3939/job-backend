@@ -13,6 +13,7 @@ export const SUBSCRIBE_DATA = [
       'Update new templates before anyone else.',
       'Unlimit customise resume template',
       'Unlimit create resume template',
+      'Other feature in coming soon',
     ],
   },
   {
