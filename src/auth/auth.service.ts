@@ -45,14 +45,16 @@ export class AuthService {
 
     if (user) return exceptions.badRequest(MESSAGE.EMAIL_EXITS);
 
-    if (eq(role, Role.user) && (!dto.verifyCode || !dto.oobCode))
-      return exceptions.badRequest(MESSAGE.INVALID);
+    if (eq(role, Role.user)) {
+      if (!dto.verifyCode || !dto.oobCode) return exceptions.badRequest(MESSAGE.INVALID);
 
-    const oobDecoded = this.jwt.decode(dto.oobCode) satisfies OobDecode;
+      const oobDecoded = this.jwt.decode(dto.oobCode) satisfies OobDecode;
 
-    if (dayjs().isAfter(oobDecoded.expiresIn)) return exceptions.badRequest('Oob code is expired');
-    if (dto.verifyCode !== oobDecoded.code || oobDecoded.email !== dto.email)
-      return exceptions.badRequest(MESSAGE.INVALID);
+      if (dayjs().isAfter(oobDecoded.expiresIn))
+        return exceptions.badRequest('Oob code is expired');
+      if (dto.verifyCode !== oobDecoded.code || oobDecoded.email !== dto.email)
+        return exceptions.badRequest(MESSAGE.INVALID);
+    }
 
     const password = await hash(dto.password);
 
