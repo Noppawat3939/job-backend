@@ -38,16 +38,17 @@ export class UserResumeService {
         where: { userEmail: user.email },
       }),
       this.db.userResume.findMany({ where: { userId: user.id }, select: { id: true } }),
-    ]);
-    const cached = await this.cache.get<string>(CACHE_KEY.USER_RESUME);
+    ]).finally(async () => {
+      const cached = await this.cache.get<string>(CACHE_KEY.USER_RESUME);
 
-    if (cached) await this.cache.del(CACHE_KEY.USER_RESUME);
+      if (cached) await this.cache.del(CACHE_KEY.USER_RESUME);
+    });
 
     const maxInsert = MAX_INSERT_DATA[subscribe?.type];
 
     const createParams = { userId: user.id, ...dto } as Prisma.UserResumeCreateInput;
 
-    if ((subscribe && resumes?.length > maxInsert) || (!subscribe && resumes?.length >= 1))
+    if ((subscribe && resumes?.length >= maxInsert) || (!subscribe && resumes?.length >= 1))
       return exceptions.unProcessable('Limit exceed create');
 
     const result = await this.db.userResume.create({ data: createParams });
@@ -58,11 +59,13 @@ export class UserResumeService {
   async updateUserResume(id: number, user: User, dto: UpdateResumeDto) {
     const data = await this.db.userResume
       .findFirstOrThrow({ where: { id, userId: user.id } })
-      .catch(() => exceptions.notFound(MESSAGE.NOT_FOUND));
+      .catch(() => exceptions.notFound(MESSAGE.NOT_FOUND))
+      .finally(async () => {
+        const cached = await this.cache.get<string>(CACHE_KEY.USER_RESUME);
 
-    const cached = await this.cache.get<string>(CACHE_KEY.USER_RESUME);
+        if (cached) await this.cache.del(CACHE_KEY.USER_RESUME);
+      });
 
-    if (cached) await this.cache.del(CACHE_KEY.USER_RESUME);
     const updateParams = {
       templateTitle: dto.templateTitle,
       templateData: dto.templateData,
