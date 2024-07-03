@@ -47,7 +47,7 @@ export class UserResumeService {
 
     const createParams = { userId: user.id, ...dto } as Prisma.UserResumeCreateInput;
 
-    if ((subscribe && resumes?.length > maxInsert) || (!subscribe && resumes?.length > 1))
+    if ((subscribe && resumes?.length > maxInsert) || (!subscribe && resumes?.length >= 1))
       return exceptions.unProcessable('Limit exceed create');
 
     const result = await this.db.userResume.create({ data: createParams });
