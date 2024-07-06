@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 export const SUBSCRIBE_DATA = [
   {
     id: 1,
@@ -6,8 +8,12 @@ export const SUBSCRIBE_DATA = [
     title: 'Professional',
     sub_title: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Labore, laborum!',
     price: {
-      per_month: 499,
-      per_year: 5900,
+      per_month: 99,
+      per_year: 950,
+      discount: {
+        percent_per_year: 20,
+        discount_end_date: dayjs('2024/12/31').toISOString(),
+      },
     },
     features: [
       'Update new templates before anyone else.',
@@ -23,8 +29,12 @@ export const SUBSCRIBE_DATA = [
     title: 'Intermediat',
     sub_title: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Labore, laborum!',
     price: {
-      per_month: 249,
-      per_year: 2900,
+      per_month: 49,
+      per_year: 529,
+      discount: {
+        percent_per_year: 10,
+        discount_end_date: null,
+      },
     },
     features: [
       'Update new templates before anyone else.',
@@ -41,6 +51,10 @@ export const SUBSCRIBE_DATA = [
     price: {
       per_month: 0,
       per_year: 0,
+      discount: {
+        percent_per_year: 0,
+        discount_end_date: null,
+      },
     },
     features: ['Customise resume template (limit)', 'Create resume template (limit)'],
   },

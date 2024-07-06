@@ -1,5 +1,6 @@
 import * as bcrypt from 'bcryptjs';
-import dayjs from 'dayjs';
+import qrcode from 'qrcode';
+import propmtpayQr from 'promptpay-qr';
 
 export const hash = async (value: string) =>
   await bcrypt.hash(value, Number(process.env.SALT) || 10);
@@ -99,4 +100,26 @@ export const generateRefNo = (len = 8) => {
   }
 
   return refNo;
+};
+
+export const createQRPromptpay = (price: number) => {
+  let qrcodeSvg: string;
+
+  const paymentTarget = process.env.PROPMTPAY_MOBILE_NUMBER;
+
+  const payload = propmtpayQr(paymentTarget, { amount: price });
+
+  qrcode.toString(
+    payload,
+    { type: 'svg', color: { dark: '#111111', light: '#fff' } },
+    (err, result) => {
+      if (err) {
+        throw new Error();
+      } else {
+        qrcodeSvg = result;
+      }
+    },
+  );
+
+  return qrcodeSvg;
 };

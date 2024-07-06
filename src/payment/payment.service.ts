@@ -1,50 +1,31 @@
 import { Injectable } from '@nestjs/common';
-import generatePayload from 'promptpay-qr';
-import qrcode from 'qrcode';
-import { ConfigService } from '@nestjs/config';
-import { accepts, exceptions, generateRefNo } from 'src/lib';
+import { accepts, createQRPromptpay, exceptions, generateRefNo } from 'src/lib';
 import { MESSAGE } from 'src/constants';
 import { Prisma, TransactionStatus, User } from '@prisma/client';
 import type { CreateQRSourceDto } from 'src/types';
 import dayjs from 'dayjs';
 import { DbService } from 'src/db';
+import { SUBSCRIBE_DATA } from 'src/public/data';
 
 @Injectable()
 export class PaymentService {
-  constructor(
-    private readonly config: ConfigService,
-    private readonly db: DbService,
-  ) {}
+  constructor(private readonly db: DbService) {}
   async createQRSource(user: User, dto: CreateQRSourceDto) {
-    let qr: string;
+    const subscribed = await this.db.subscription.findUnique({
+      where: { userEmail: user.email },
+    });
 
-    await this.db.subscription
-      .findUniqueOrThrow({
-        where: { userEmail: user.email },
-      })
-      .then((subscribe) => {
-        if (subscribe.userEmail)
-          return exceptions.unProcessable(`Email ${subscribe.userEmail} is subscribed`);
-      });
+    if (subscribed?.userEmail)
+      return exceptions.unProcessable(`Email ${user.email} already subscribed`);
 
-    const paymentTarget = this.config.get<string>('PROPMTPAY_MOBILE_NUMBER');
+    const price = SUBSCRIBE_DATA.find((data) => data.code_key === dto.code_key).price[dto.period];
 
-    const payload = generatePayload(paymentTarget, { amount: dto.value });
-
-    qrcode.toString(
-      payload,
-      { type: 'svg', color: { dark: '#111111', light: '#fff' } },
-      (err, qrSvgStr) => {
-        if (err) return console.log(err);
-
-        qr = qrSvgStr;
-      },
-    );
+    createQRPromptpay(price);
 
     return accepts(MESSAGE.CREATE_SUCCESS, {
       data: {
         refNo: generateRefNo(),
-        qrcode: qr,
+        qrcode: createQRPromptpay(price),
         expired_in: dayjs().add(10, 'minutes').toISOString(),
       },
     });
