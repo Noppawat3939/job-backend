@@ -46,7 +46,7 @@ export class JobController {
     return this.service.getById(+id, user.id);
   }
 
-  @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @SetMetadata('role', [Role.employer])
   @Post('create')
   @UsePipes(new ZodValidationPipe(createJobSchema))
@@ -59,8 +59,7 @@ export class JobController {
     return this.service.createJob(body, req.user, isAllowedCheckLastest);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @SetMetadata('role', [Role.employer])
   @Patch('update/:id')
   @UsePipes(new ZodValidationPipe(updateJobSchema))
@@ -74,35 +73,31 @@ export class JobController {
     return this.service.updateJob(id, body, isAllowedCheckLastest);
   }
 
-  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatusCode.Ok)
-  @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @SetMetadata('role', [Role.super_admin, Role.admin])
   @Post('approve/:id')
   approveJob(@Param() { id }: { id: string }) {
     return this.service.approveOrRejectJob(+id, ACTIVE.APPROVED);
   }
 
-  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatusCode.Ok)
-  @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @SetMetadata('role', [Role.super_admin])
   @Post('reject/:id')
   rejectJob(@Param() { id }: { id: string }) {
     return this.service.approveOrRejectJob(+id, ACTIVE.REJECTED);
   }
 
-  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatusCode.Ok)
-  @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @SetMetadata('role', [Role.super_admin])
   @Post('un-approve/:id')
   unApproveJob(@Param() { id }: { id: string }) {
     return this.service.approveOrRejectJob(+id, ACTIVE.UN_APPROVE);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @SetMetadata('role', [Role.employer, Role.super_admin])
   @Delete(':id')
   deleteJob(@Req() req: Request, @Param() { id }: { id: string }) {
