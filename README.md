@@ -18,4 +18,6 @@
 - 🔑 Authentication using email and google account
 - 💻 Backoffice system manage by role permission
 - 📩 Beautiful thank-you email
+- 🔔 Subscriber template system
+- 💸 Payment scan QR
 - 🌟 ...much more
