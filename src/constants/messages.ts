@@ -11,6 +11,7 @@ export const MESSAGE = {
   GET_SUCCESS: 'Getted data',
   CREATE_SUCCESS: 'Created data',
   UPDATE_SUCCESS: 'Updated data',
+  UPDATE_FAILED: 'Update data failed',
   DELETE_SUCCESS: 'Deleted data',
   DELETE_FAILED: 'Delete data failed',
   NOT_ACCEPT: 'Data not accept',

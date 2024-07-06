@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import generatePayload from 'promptpay-qr';
-import fs from 'fs';
 import qrcode from 'qrcode';
 import { ConfigService } from '@nestjs/config';
 import { accepts, exceptions, generateRefNo } from 'src/lib';
@@ -19,9 +18,14 @@ export class PaymentService {
   async createQRSource(user: User, dto: CreateQRSourceDto) {
     let qr: string;
 
-    // const subscribed = await this.db.subscription.findUnique({
-    //   where: { userEmail: user.email || '' },
-    // });
+    await this.db.subscription
+      .findUniqueOrThrow({
+        where: { userEmail: user.email },
+      })
+      .then((subscribe) => {
+        if (subscribe.userEmail)
+          return exceptions.unProcessable(`Email ${subscribe.userEmail} is subscribed`);
+      });
 
     const paymentTarget = this.config.get<string>('PROPMTPAY_MOBILE_NUMBER');
 
@@ -70,10 +74,15 @@ export class PaymentService {
       .findUniqueOrThrow({ where: { refNumber, status: TransactionStatus.pending } })
       .then(async (result) => {
         if (result.refNumber) {
-          await this.db.paymentTransaction.update({
-            where: { refNumber: result.refNumber },
-            data: { stamptUserId: user.id, status: TransactionStatus[''] },
-          });
+          await this.db.paymentTransaction
+            .update({
+              where: { refNumber: result.refNumber },
+              data: { stamptUserId: user.id, status: dto.status },
+            })
+            .then((data) => accepts(MESSAGE.UPDATE_SUCCESS, { data }))
+            .catch(() => {
+              exceptions.badRequest(MESSAGE.UPDATE_FAILED);
+            });
         }
       })
       .catch(() => exceptions.badRequest(MESSAGE.NOT_FOUND));
