@@ -1,4 +1,5 @@
 import * as bcrypt from 'bcryptjs';
+import dayjs from 'dayjs';
 
 export const hash = async (value: string) =>
   await bcrypt.hash(value, Number(process.env.SALT) || 10);
@@ -78,8 +79,24 @@ export const unPretty = (text: string) => text.replaceAll('_', ' ');
  */
 export const uniqueList = <T extends string | number>(values: T[]) => [...new Set(values)];
 
+/**
+ *
+ * @example generateCode()
+ * @returns 182910
+ */
 export const generateCode = () => {
   const randomNum = Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
 
   return randomNum.toString().padStart(6, '0');
+};
+
+export const generateRefNo = (len = 8) => {
+  let refNo = '';
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+  for (let i = 0; i < len; i++) {
+    refNo += chars[Math.floor(Math.random() * chars.length)];
+  }
+
+  return refNo;
 };

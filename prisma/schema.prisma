@@ -102,6 +102,16 @@ model Subscription {
   updatedAt DateTime         @updatedAt
 }
 
+model PaymentTransaction {
+  id                     Int               @id @default(autoincrement())
+  refNumber              String            @unique
+  status                 TransactionStatus @default(pending)
+  transactionCompletedAt DateTime?
+  stamptUserId           Int?              @unique
+  createdAt              DateTime          @default(now())
+  updatedAt              DateTime          @updatedAt
+}
+
 model ResumeTemplate {
   id              Int          @id @default(autoincrement())
   image           String?
@@ -154,4 +164,10 @@ enum SubscriptionType {
   sub_A
   sub_B
   sub_C
+}
+
+enum TransactionStatus {
+  pending
+  completed
+  cancelled
 }

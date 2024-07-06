@@ -74,9 +74,17 @@ export class PublicService {
     return accepts(MESSAGE.GET_SUCCESS, { data, total: data.length });
   }
 
-  getSubscribe() {
+  getSubscribe(query?: { plan: string }) {
+    let result: typeof SUBSCRIBE_DATA;
+
     const data = SUBSCRIBE_DATA;
 
-    return accepts(MESSAGE.GET_SUCCESS, { data });
+    if (query.plan) {
+      result = [data.find((item) => item.plan === query.plan)];
+    } else {
+      result = data;
+    }
+
+    return accepts(MESSAGE.GET_SUCCESS, { data: result });
   }
 }

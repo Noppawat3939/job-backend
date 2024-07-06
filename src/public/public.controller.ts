@@ -1,4 +1,4 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { PublicKeyGuard } from 'src/guards';
 import { PublicService } from './public.service';
 
@@ -33,7 +33,7 @@ export class PublicController {
   }
 
   @Get('subscribe')
-  getSubscribeData() {
-    return this.service.getSubscribe();
+  getSubscribeData(@Query() query: { plan: string }) {
+    return this.service.getSubscribe(query);
   }
 }
