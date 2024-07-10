@@ -15,6 +15,8 @@ import { redisStore } from 'cache-manager-redis-yet';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { UserResumeModule } from './user-resume';
 import { PaymentModule } from './payment';
+import { UploadModule } from './upload';
+import { FirebaseModule } from './firebase';
 
 const { REDIS_HOST: redisHost, REDIS_PORT: redisPort, CACHE_TTL: cacheTtl } = process.env;
 
@@ -40,6 +42,7 @@ const { REDIS_HOST: redisHost, REDIS_PORT: redisPort, CACHE_TTL: cacheTtl } = pr
     UserJobModule,
     UserResumeModule,
     PaymentModule,
+    UploadModule,
   ],
   providers: [{ provide: APP_PIPE, useClass: ZodValidationPipe }],
 })
