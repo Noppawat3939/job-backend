@@ -19,7 +19,9 @@ import { Role, TransactionStatus, User } from '@prisma/client';
 import { JwtAuthGuard, RolesGuard } from 'src/guards';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { CreatePaymentDto, createPaymentSchema } from 'src/schemas';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Payment')
 @UseGuards(JwtAuthGuard)
 @Controller('payment')
 export class PaymentController {
