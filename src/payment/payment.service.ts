@@ -46,6 +46,23 @@ export class PaymentService {
     return accepts(MESSAGE.GET_SUCCESS, { data });
   }
 
+  async createTransaction(user: User, refNumber: string) {
+    const transaction = await this.db.paymentTransaction.findFirst({
+      where: { refNumber, stamptUserId: user.id },
+    });
+
+    if (transaction) return exceptions.unProcessable(MESSAGE.NOT_ACCEPT);
+
+    const data = await this.db.paymentTransaction.create({
+      data: {
+        refNumber,
+        stamptUserId: user.id,
+      },
+    });
+
+    return accepts(MESSAGE.CREATE_SUCCESS, { data });
+  }
+
   async updateTransaction(user: User, refNumber: string, dto: { status: TransactionStatus }) {
     if (dto.status === 'pending') {
       return exceptions.unProcessable(MESSAGE.NOT_ACCEPT);

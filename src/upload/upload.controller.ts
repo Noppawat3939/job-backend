@@ -8,7 +8,7 @@ export class UploadController {
 
   @Post('/')
   @UseInterceptors(FileInterceptor('image'))
-  uploadImage(@UploadedFile() file: File) {
+  uploadImage(@UploadedFile() file: Express.Multer.File) {
     return this.serive.uploadImage(file);
   }
 }

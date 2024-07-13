@@ -40,6 +40,19 @@ export class PaymentController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(RolesGuard)
   @SetMetadata('role', [Role.super_admin, Role.admin])
+  @Post('/transaction/create/:refno')
+  createTransaction(
+    @Req() req: Request,
+    @Param() { refno }: { refno: string },
+    @Body() dto: { status: TransactionStatus },
+  ) {
+    const user: User = req.user;
+    return this.service.createTransaction(user, refno);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(RolesGuard)
+  @SetMetadata('role', [Role.super_admin, Role.admin])
   @Post('/transaction/update/:refno')
   updateTransaction(
     @Req() req: Request,

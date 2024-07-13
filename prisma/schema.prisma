@@ -108,6 +108,7 @@ model PaymentTransaction {
   status                 TransactionStatus @default(pending)
   transactionCompletedAt DateTime?
   stamptUserId           Int?              @unique
+  slipImage              String?
   createdAt              DateTime          @default(now())
   updatedAt              DateTime          @updatedAt
 }

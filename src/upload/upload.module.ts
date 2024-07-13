@@ -4,11 +4,7 @@ import { UploadService } from './upload.service';
 import { FirebaseModule } from 'src/firebase';
 
 @Module({
-  imports: [
-    // PassportModule.register(passportOptions),
-    // JwtModule.register(jwtOptions),
-    FirebaseModule,
-  ],
+  imports: [FirebaseModule],
   controllers: [UploadController],
   providers: [UploadService],
 })
