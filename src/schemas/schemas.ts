@@ -208,3 +208,7 @@ export const templateResumeSchema = {
 export const refNumberSchema = {
   create: z.string({ required_error: 'Ref no. is required' }),
 };
+
+export const paymentSlipUrlSchema = {
+  create: z.string().optional(),
+};

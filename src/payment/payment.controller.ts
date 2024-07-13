@@ -26,6 +26,8 @@ export class PaymentController {
   constructor(private readonly service: PaymentService) {}
 
   @Post('/source-qr')
+  @UseGuards(RolesGuard)
+  @SetMetadata('role', [Role.user])
   generate(@Req() req: Request, @Body() dto: CreateQRSourceDto) {
     const user: User = req.user;
 
@@ -42,7 +44,7 @@ export class PaymentController {
 
   @HttpCode(HttpStatus.OK)
   @UseGuards(RolesGuard)
-  @SetMetadata('role', [Role.super_admin, Role.admin])
+  @SetMetadata('role', [Role.user])
   @Post('/transaction')
   @UsePipes(new ZodValidationPipe(createPaymentSchema))
   createTransaction(@Req() req: Request, @Body() dto: CreatePaymentDto) {

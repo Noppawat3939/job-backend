@@ -51,15 +51,19 @@ export class PaymentService {
     const { refNumber } = dto;
 
     const transaction = await this.db.paymentTransaction.findFirst({
-      where: { refNumber, stamptUserId: user.id },
+      where: { OR: [{ refNumber }, { stamptUserId: user.id }] },
     });
 
-    if (transaction) return exceptions.unProcessable(MESSAGE.NOT_ACCEPT);
+    if (transaction) {
+      console.log(`transaction already exits user ID ${transaction.stamptUserId}`);
+      return exceptions.unProcessable(MESSAGE.NOT_ACCEPT);
+    }
 
     const data = await this.db.paymentTransaction.create({
       data: {
         refNumber,
         stamptUserId: user.id,
+        ...(dto.slipImage && { slipImage: dto.slipImage }),
       },
     });
 
