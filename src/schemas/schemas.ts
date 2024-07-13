@@ -204,3 +204,7 @@ export const templateResumeSchema = {
   templateId: z.number(),
   templateData: z.json().optional(),
 };
+
+export const refNumberSchema = {
+  create: z.string({ required_error: 'Ref no. is required' }),
+};

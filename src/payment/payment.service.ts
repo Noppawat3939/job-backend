@@ -6,6 +6,7 @@ import type { CreateQRSourceDto } from 'src/types';
 import dayjs from 'dayjs';
 import { DbService } from 'src/db';
 import { SUBSCRIBE_DATA } from 'src/public/data';
+import { CreatePaymentDto } from 'src/schemas';
 
 @Injectable()
 export class PaymentService {
@@ -46,7 +47,9 @@ export class PaymentService {
     return accepts(MESSAGE.GET_SUCCESS, { data });
   }
 
-  async createTransaction(user: User, refNumber: string) {
+  async createTransaction(user: User, dto: CreatePaymentDto) {
+    const { refNumber } = dto;
+
     const transaction = await this.db.paymentTransaction.findFirst({
       where: { refNumber, stamptUserId: user.id },
     });
