@@ -21,7 +21,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "migrate": "npx prisma migrate dev",
     "ps-open": "npx prisma studio",
-    "ps-push": "npm prisma db push"
+    "ps-new": "npx prisma generate db && npx prisma db push"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^2.0.2",
