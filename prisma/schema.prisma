@@ -96,7 +96,8 @@ model UserResume {
 }
 
 model Subscription {
-  userEmail String             @unique
+  id        Int                @id @default(autoincrement())
+  userId    Int
   type      SubscriptionType
   status    SubscriptionStatus @default(pending)
   createdAt DateTime           @default(now())

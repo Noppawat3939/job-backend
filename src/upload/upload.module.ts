@@ -4,7 +4,6 @@ import { UploadService } from './upload.service';
 import { FirebaseModule } from 'src/firebase';
 
 @Module({
-  imports: [FirebaseModule],
   controllers: [UploadController],
   providers: [UploadService],
 })

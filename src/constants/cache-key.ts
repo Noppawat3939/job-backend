@@ -5,4 +5,5 @@ export const CACHE_KEY = {
   PUBLIC_JOB: 'public_job',
   RESUME_TEMPLATES: 'resume-templates',
   USER_RESUME: 'user-resume',
+  REF_SUBPLAN: 'ref-subscrition',
 } as const;

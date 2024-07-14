@@ -16,7 +16,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { UserResumeModule } from './user-resume';
 import { PaymentModule } from './payment';
 import { UploadModule } from './upload';
-import { FirebaseModule } from './firebase';
+import { SubscriptionModule } from './subscription';
 
 const { REDIS_HOST: redisHost, REDIS_PORT: redisPort, CACHE_TTL: cacheTtl } = process.env;
 
@@ -43,6 +43,7 @@ const { REDIS_HOST: redisHost, REDIS_PORT: redisPort, CACHE_TTL: cacheTtl } = pr
     UserResumeModule,
     PaymentModule,
     UploadModule,
+    SubscriptionModule,
   ],
   providers: [{ provide: APP_PIPE, useClass: ZodValidationPipe }],
 })

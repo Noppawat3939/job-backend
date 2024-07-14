@@ -35,7 +35,7 @@ export class UserResumeService {
   async insertUserResume(user: User, dto: UpdateResumeDto) {
     const [subscribe, resumes] = await Promise.all([
       this.db.subscription.findFirst({
-        where: { userEmail: user.email },
+        where: { userId: user.id },
       }),
       this.db.userResume.findMany({ where: { userId: user.id }, select: { id: true } }),
     ]).finally(async () => {

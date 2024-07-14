@@ -17,8 +17,6 @@ const firebaseProvider = {
 };
 
 @Module({
-  // providers: [firebaseProvider],
-  // exports: [],
   providers: [FirebaseService],
   exports: [FirebaseService],
 })

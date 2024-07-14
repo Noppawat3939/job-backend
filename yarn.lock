@@ -2874,6 +2874,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"appwrite@npm:^15.0.0":
+  version: 15.0.0
+  resolution: "appwrite@npm:15.0.0"
+  checksum: 10c0/3fc35b9a607e7dcd2e29ecbde80eabad2a188ddba7c59129c8b9fb7238e64f82d3c2e4750aacbb8103c6a191aa89c52297fede82e8428bd753598ccffc286a28
+  languageName: node
+  linkType: hard
+
 "arg@npm:^4.1.0":
   version: 4.1.3
   resolution: "arg@npm:4.1.3"
@@ -6703,6 +6710,7 @@ __metadata:
     "@types/supertest": "npm:^6.0.0"
     "@typescript-eslint/eslint-plugin": "npm:^6.0.0"
     "@typescript-eslint/parser": "npm:^6.0.0"
+    appwrite: "npm:^15.0.0"
     axios: "npm:^1.6.8"
     bcryptjs: "npm:^2.4.3"
     cache-manager: "npm:^5.5.2"
@@ -6713,6 +6721,7 @@ __metadata:
     eslint-plugin-prettier: "npm:^5.0.0"
     firebase-admin: "npm:^12.2.0"
     jest: "npm:^29.5.0"
+    multer: "npm:^1.4.5-lts.1"
     nestjs-zod: "npm:^3.0.0"
     nodemailer: "npm:^6.9.13"
     passport: "npm:^0.7.0"
@@ -8161,6 +8170,21 @@ __metadata:
     type-is: "npm:^1.6.4"
     xtend: "npm:^4.0.0"
   checksum: 10c0/63277d3483869f424274ef8ce6ab7ff4ce9d2c1cc69e707fc8b5d9b2b348ae6f742809e0b357a591dea885d147594bcd06528d3d6bbe32046115d4a7e126b954
+  languageName: node
+  linkType: hard
+
+"multer@npm:^1.4.5-lts.1":
+  version: 1.4.5-lts.1
+  resolution: "multer@npm:1.4.5-lts.1"
+  dependencies:
+    append-field: "npm:^1.0.0"
+    busboy: "npm:^1.0.0"
+    concat-stream: "npm:^1.5.2"
+    mkdirp: "npm:^0.5.4"
+    object-assign: "npm:^4.1.1"
+    type-is: "npm:^1.6.4"
+    xtend: "npm:^4.0.0"
+  checksum: 10c0/4c6c91e93e510c99e791b6520e3e2f4a227a57f4f509427ff7f3a6f4cc0b4b09ad77c475f629c12f7ae01dba11645b2bd6568877cab775de8bf853b0a67259b4
   languageName: node
   linkType: hard
 
