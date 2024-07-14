@@ -9,7 +9,7 @@
 
 ---
 
-👨‍💻 Built with the Nestjs, Postgres, Prisma, Docker
+👨‍💻 Built with the Nestjs, Postgres, Prisma, Firebase and Docker
 
 #### Features
 
@@ -20,4 +20,5 @@
 - 📩 Beautiful thank-you email
 - 🔔 Subscriber template system
 - 💸 Payment scan QR
+- 📁 Image upload
 - 🌟 ...much more
