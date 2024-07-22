@@ -4,7 +4,7 @@ import fs from 'fs';
 import dayjs from 'dayjs';
 
 const generateTemplateFilePath = (fileName: string) => {
-  const filePath = path.join(__dirname, '..', '..', 'src', 'templates', fileName);
+  const filePath = path.join(__dirname, '..', '..', 'src', 'templates', `${fileName}.html`);
   const template = fs.readFileSync(filePath, 'utf-8');
 
   return template;
@@ -14,19 +14,26 @@ export const generateMailerOptions = ({
   email,
   verify_code,
   full_name,
+  username,
 }: {
   email: string;
   full_name?: string;
   verify_code?: string;
+  username?: string;
 }) => {
-  const createAccountTemplate = generateTemplateFilePath('create-account.html').replace(
+  const createAccountTemplate = generateTemplateFilePath('create-account').replace(
     /\[full_name\]/g,
     `${full_name || ''} `,
   );
 
-  const emailVerifyTemplate = generateTemplateFilePath('email-verification.html').replace(
+  const emailVerifyTemplate = generateTemplateFilePath('email-verification').replace(
     /\[verify_code\]/g,
     verify_code,
+  );
+
+  const subscribeTemplate = generateTemplateFilePath('subscribe').replace(
+    /\[username\]/g,
+    username,
   );
 
   const defaultOption = { to: email.toLowerCase(), from: 'jobify@co.com', sender: 'jobify@co.com' };
@@ -45,5 +52,13 @@ export const generateMailerOptions = ({
     date: dayjs().format('DD/MM/YYYY'),
   } satisfies ISendMailOptions;
 
-  return { createAccount, emailVerify };
+  const subscribe = {
+    ...defaultOption,
+    subject: 'Thank you for subscribe',
+    html: subscribeTemplate,
+    cc: 'jobify@co.com',
+    date: dayjs().format('DD/MM/YYYY'),
+  } satisfies ISendMailOptions;
+
+  return { createAccount, emailVerify, subscribe };
 };
